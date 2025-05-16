@@ -1,6 +1,9 @@
 
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { User, userService } from "@/services/userService";
+import { AUTH_CONFIG } from "@/config/env";
+
+const TOKEN_NAME = AUTH_CONFIG.TOKEN_NAME;
 
 interface AuthContextType {
   user: User | null;
@@ -29,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Check for existing auth token and fetch user on mount
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem(TOKEN_NAME);
       if (!token) {
         setIsLoading(false);
         return;
@@ -40,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(userData);
       } catch (error) {
         // Clear invalid token
-        localStorage.removeItem("authToken");
+        localStorage.removeItem(TOKEN_NAME);
       } finally {
         setIsLoading(false);
       }
@@ -53,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       const { user, token } = await userService.login({ email, password });
-      localStorage.setItem("authToken", token);
+      localStorage.setItem(TOKEN_NAME, token);
       setUser(user);
     } finally {
       setIsLoading(false);
@@ -64,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       const { user, token } = await userService.register({ name, email, password });
-      localStorage.setItem("authToken", token);
+      localStorage.setItem(TOKEN_NAME, token);
       setUser(user);
     } finally {
       setIsLoading(false);
@@ -73,6 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     await userService.logout();
+    localStorage.removeItem(TOKEN_NAME);
     setUser(null);
   };
 

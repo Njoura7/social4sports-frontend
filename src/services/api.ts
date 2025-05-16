@@ -1,7 +1,9 @@
 
 import { toast } from "sonner";
+import { API_CONFIG, AUTH_CONFIG } from "@/config/env";
 
-const API_URL = "http://localhost:8000";
+const API_URL = API_CONFIG.BASE_URL;
+const TOKEN_NAME = AUTH_CONFIG.TOKEN_NAME;
 
 /**
  * Custom error for API request failures
@@ -33,7 +35,7 @@ async function fetchApi<T>(
     };
     
     // Add authentication token if available
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem(TOKEN_NAME);
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
