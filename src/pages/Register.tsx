@@ -5,7 +5,7 @@ import PageLayout from "@/components/layout/PageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { 
   Select,
   SelectContent,
@@ -13,6 +13,15 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -21,23 +30,29 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [sport, setSport] = useState("pingpong");
   const [skillLevel, setSkillLevel] = useState("");
-  const { toast } = useToast();
+  const [avatar, setAvatar] = useState("avatar1.png");
+
+  const avatarOptions = [
+    { value: "avatar1.png", label: "Avatar 1" },
+    { value: "avatar2.png", label: "Avatar 2" },
+    { value: "avatar3.png", label: "Avatar 3" },
+    { value: "avatar4.png", label: "Avatar 4" },
+    { value: "avatar5.png", label: "Avatar 5" },
+    { value: "avatar6.png", label: "Avatar 6" },
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      toast({
-        title: "Passwords don't match",
+      toast.error("Passwords don't match", {
         description: "Please ensure both passwords match",
-        variant: "destructive",
       });
       return;
     }
 
-    // In a real app, this would call a registration API with Supabase
-    toast({
-      title: "Registration successful",
+    // In a real app, this would call a registration API
+    toast.success("Registration successful", {
       description: "Welcome to Social4Sports!",
     });
 
@@ -61,6 +76,40 @@ const Register = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="flex flex-col items-center mb-6">
+                <div className="mb-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="rounded-full p-0 h-24 w-24">
+                        <Avatar className="h-24 w-24">
+                          <AvatarImage src={`/${avatar}`} alt="Profile picture" />
+                          <AvatarFallback>{name.charAt(0) || "U"}</AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center">
+                      <DropdownMenuLabel>Select Avatar</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <div className="grid grid-cols-3 gap-2 p-2">
+                        {avatarOptions.map((option) => (
+                          <DropdownMenuItem 
+                            key={option.value}
+                            className="p-1 cursor-pointer"
+                            onClick={() => setAvatar(option.value)}
+                          >
+                            <Avatar>
+                              <AvatarImage src={`/${option.value}`} alt={option.label} />
+                              <AvatarFallback>{option.label.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                          </DropdownMenuItem>
+                        ))}
+                      </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <p className="text-sm text-muted-foreground">Click to select avatar</p>
+              </div>
+              
               <div className="space-y-2">
                 <label htmlFor="name" className="text-sm font-medium">
                   Full Name

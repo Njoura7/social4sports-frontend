@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +15,7 @@ const Profile = () => {
   const user = {
     name: "John Doe",
     username: "@johndoe",
+    avatar: "avatar3.png", // Using one of our placeholder avatars
     location: "San Francisco, CA",
     bio: "Ping pong enthusiast for 5+ years. Looking for challenging matches to improve my game!",
     skillLevel: "Intermediate",
@@ -65,7 +65,7 @@ const Profile = () => {
             <div className="flex flex-col md:flex-row">
               <div className="flex flex-col items-center md:items-start">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src="/avatar-profile.png" alt={user.name} />
+                  <AvatarImage src={`/${user.avatar}`} alt={user.name} />
                   <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 {isOwnProfile && (
