@@ -1,73 +1,122 @@
-# Welcome to your Lovable project
 
-## Project info
+# Social4Sports: Connect Through Sports
 
-**URL**: https://lovable.dev/projects/a796e737-be27-4627-ac7e-5b1cb11bac07
+## 🏓 Project Overview
 
-## How can I edit this code?
+Social4Sports is a modern, interactive platform designed to connect sports enthusiasts, starting with ping pong players. Our application allows users to find nearby players, schedule matches, communicate in real-time, and track their progress—all in one seamless experience.
 
-There are several ways of editing your application.
+This project was developed as part of [University Name]'s [Course Name] by [Your Team Name].
 
-**Use Lovable**
+![Social4Sports Screenshot](public/app-screenshot.png)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/a796e737-be27-4627-ac7e-5b1cb11bac07) and start prompting.
+## 🚀 Key Features
 
-Changes made via Lovable will be committed automatically to this repo.
+- **User Authentication & Profile Management**
+  - Personalized player profiles with skill levels, play styles, and availability
+  - Comprehensive match history and performance statistics
 
-**Use your preferred IDE**
+- **Player Discovery**
+  - Find players based on proximity, skill level, and availability
+  - Smart filtering to match with compatible opponents
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Real-time Messaging**
+  - Direct communication with connected players
+  - Schedule and coordinate matches easily
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- **Match Management**
+  - Create and track scheduled matches
+  - Record match results and maintain history
 
-Follow these steps:
+## 🛠️ Tech Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- **Frontend**: React, TypeScript, Vite
+- **UI Components**: Tailwind CSS, ShadCN UI
+- **State Management**: React Context API, TanStack Query
+- **Routing**: React Router
+- **Backend**: Node.js API (separate repository)
+- **Additional Tools**:
+  - ESLint & Prettier for code quality
+  - React Hook Form for form validation
+  - Lucide React for iconography
+  - Sonner for toast notifications
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🏁 Getting Started
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Prerequisites
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+- Node.js (v16 or newer)
+- npm or yarn package manager
+- Backend API running at http://localhost:8000
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/social4sports.git
+
+# Navigate to the project directory
+cd social4sports
+
+# Install dependencies
+npm install
+# or
+yarn
+
+# Start the development server
 npm run dev
+# or
+yarn dev
 ```
 
-**Edit a file directly in GitHub**
+The application will be available at [http://localhost:8080](http://localhost:8080).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Connecting to Backend
 
-**Use GitHub Codespaces**
+Social4Sports is designed to work with a Node.js backend API running at `http://localhost:8000`. Make sure your backend server is running before using features that require API access.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📝 API Integration
 
-## What technologies are used for this project?
+The frontend communicates with the backend through a structured API service layer:
 
-This project is built with:
+- Authentication (login, registration, profile management)
+- Player discovery and connections
+- Match scheduling and result tracking
+- Messaging between players
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📊 Project Structure
 
-## How can I deploy this project?
+```
+src/
+├── components/         # UI components
+│   ├── layout/         # Layout components
+│   └── ui/             # Shadcn UI components
+├── contexts/           # React Context providers
+├── hooks/              # Custom React hooks
+├── lib/                # Utility functions
+├── pages/              # Page components
+├── services/           # API services
+└── ...
+```
 
-Simply open [Lovable](https://lovable.dev/projects/a796e737-be27-4627-ac7e-5b1cb11bac07) and click on Share -> Publish.
+## 🔮 Future Enhancements
 
-## Can I connect a custom domain to my Lovable project?
+- Expansion to additional sports beyond ping pong
+- Tournament organization features
+- Enhanced player matching algorithm
+- Mobile application development
+- Community forums and group events
 
-Yes, you can!
+## 👥 Team
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- [Your Name] - Frontend Developer
+- [Team Member] - Backend Developer
+- [Team Member] - UI/UX Designer
+- [Team Member] - Project Manager
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 📄 License
+
+[Specify your license here]
+
+---
+
+Developed with ❤️ by [Your Team Name]

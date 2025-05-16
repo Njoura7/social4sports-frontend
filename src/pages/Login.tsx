@@ -1,31 +1,39 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
-    // In a real app, this would call a login API with Supabase
-    toast({
-      title: "Login successful",
-      description: "Welcome back to Social4Sports!",
-    });
-
-    // Reset form
-    setEmail("");
-    setPassword("");
+    try {
+      await login(email, password);
+      toast.success("Login successful", {
+        description: "Welcome back to Social4Sports!"
+      });
+      navigate("/");
+    } catch (error) {
+      // Error is already handled in the auth context
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -51,6 +59,7 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -72,6 +81,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={isLoading}
                 />
               </div>
               <div className="flex items-center space-x-2">
@@ -79,6 +89,7 @@ const Login = () => {
                   id="remember" 
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(!!checked)}
+                  disabled={isLoading}
                 />
                 <label
                   htmlFor="remember"
@@ -87,8 +98,12 @@ const Login = () => {
                   Remember me
                 </label>
               </div>
-              <Button type="submit" className="w-full bg-sport-blue hover:bg-sport-blue/90">
-                Sign In
+              <Button 
+                type="submit" 
+                className="w-full bg-sport-blue hover:bg-sport-blue/90"
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing In..." : "Sign In"}
               </Button>
             </form>
             <div className="mt-6 text-center text-sm">
