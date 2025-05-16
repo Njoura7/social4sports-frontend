@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -33,12 +33,15 @@ const Register = () => {
   const [avatar, setAvatar] = useState("avatar1.png");
 
   const avatarOptions = [
-    { value: "avatar1.png", label: "Avatar 1" },
-    { value: "avatar2.png", label: "Avatar 2" },
-    { value: "avatar3.png", label: "Avatar 3" },
-    { value: "avatar4.png", label: "Avatar 4" },
-    { value: "avatar5.png", label: "Avatar 5" },
-    { value: "avatar6.png", label: "Avatar 6" },
+    { value: "1.png", label: "Avatar 1" },
+    { value: "2.png", label: "Avatar 2" },
+    { value: "3.png", label: "Avatar 3" },
+    { value: "4.png", label: "Avatar 4" },
+    { value: "5.png", label: "Avatar 5" },
+    { value: "6.png", label: "Avatar 6" },
+    { value: "7.png", label: "Avatar 7" },
+    { value: "8.png", label: "Avatar 8" },
+    { value: "9.png", label: "Avatar 9" },
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -83,7 +86,7 @@ const Register = () => {
                       <Button variant="outline" className="rounded-full p-0 h-24 w-24">
                         <Avatar className="h-24 w-24">
                           <AvatarImage src={`/${avatar}`} alt="Profile picture" />
-                          <AvatarFallback>{name.charAt(0) || "U"}</AvatarFallback>
+                          <AvatarFallback>{name.charAt(0) || "Avatar"}</AvatarFallback>
                         </Avatar>
                       </Button>
                     </DropdownMenuTrigger>
@@ -92,7 +95,7 @@ const Register = () => {
                       <DropdownMenuSeparator />
                       <div className="grid grid-cols-3 gap-2 p-2">
                         {avatarOptions.map((option) => (
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             key={option.value}
                             className="p-1 cursor-pointer"
                             onClick={() => setAvatar(option.value)}
@@ -109,7 +112,7 @@ const Register = () => {
                 </div>
                 <p className="text-sm text-muted-foreground">Click to select avatar</p>
               </div>
-              
+
               <div className="space-y-2">
                 <label htmlFor="name" className="text-sm font-medium">
                   Full Name
