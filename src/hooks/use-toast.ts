@@ -1,6 +1,8 @@
 
 // Re-export from sonner for simplicity
-export { toast } from "sonner";
+import { toast } from "sonner";
+
+export { toast };
 
 export const useToast = () => {
   return { toast };
