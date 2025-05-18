@@ -51,4 +51,9 @@ export const userService = {
 
   updateProfile: (data: Partial<User>) =>
     api.put<User>('/users/profile', data),
+
+  getUserByFullName: (fullName: string) => api.get<User[]>(`/users?fullName=${encodeURIComponent(fullName)}`),
+
+  searchPlayers: (params: { skillLevel?: string; lat: number; lng: number; radius?: number }) =>
+    api.get<User[]>("/players/search", { params }),
 }
