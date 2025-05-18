@@ -1,97 +1,70 @@
+import { toast } from 'sonner'
+import { API_CONFIG, AUTH_CONFIG } from '@/config/env'
+import axiosInstance from '@/api/axios'
+import type { InternalAxiosRequestConfig } from 'axios'
 
-import { toast } from "sonner";
-import { API_CONFIG, AUTH_CONFIG } from "@/config/env";
-
-const API_URL = API_CONFIG.BASE_URL;
-const TOKEN_NAME = AUTH_CONFIG.TOKEN_NAME;
+const TOKEN_NAME = AUTH_CONFIG.TOKEN_NAME
 
 /**
  * Custom error for API request failures
  */
 export class ApiError extends Error {
-  status: number;
-  
+  status: number
+
   constructor(message: string, status: number) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
   }
 }
 
-/**
- * Base fetch wrapper with error handling and authentication
- */
-async function fetchApi<T>(
-  endpoint: string, 
-  options: RequestInit = {}
-): Promise<T> {
-  try {
-    const url = `${API_URL}${endpoint}`;
-    
-    // Default headers
-    const headers = {
-      "Content-Type": "application/json",
-      ...options.headers,
-    };
-    
-    // Add authentication token if available
-    const token = localStorage.getItem(TOKEN_NAME);
+axiosInstance.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const token = localStorage.getItem(TOKEN_NAME)
+
     if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+      // If headers is a plain object
+      if (typeof config.headers === 'object') {
+        config.headers['Authorization'] = `Bearer ${token}`
+      }
     }
-    
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
-    
-    // Handle non-2xx responses
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      const errorMessage = errorData.message || "An error occurred";
-      throw new ApiError(errorMessage, response.status);
+
+    return config
+  },
+  (error) => Promise.reject(error)
+)
+
+// Add a response interceptor for error handling
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      const message = error.response.data?.message || 'An error occurred'
+      toast.error(message)
+      throw new ApiError(message, error.response.status)
+    } else if (error.request) {
+      toast.error('Network error: Please check your connection')
+      throw new ApiError('Network error', 0)
+    } else {
+      toast.error(error.message)
+      throw new ApiError(error.message, 0)
     }
-    
-    // Check if response is empty
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      return await response.json();
-    }
-    
-    return {} as T;
-  } catch (error) {
-    // Show error toast for ApiError instances
-    if (error instanceof ApiError) {
-      toast.error(error.message);
-    } else if (error instanceof Error) {
-      toast.error("Network error: Please check your connection");
-      console.error("API Request Error:", error);
-    }
-    throw error;
   }
-}
+)
 
 /**
- * API request methods
+ * API request methods using axiosInstance
  */
 export const api = {
-  get: <T>(endpoint: string, options?: RequestInit) => 
-    fetchApi<T>(endpoint, { method: "GET", ...options }),
-  
-  post: <T>(endpoint: string, data?: any, options?: RequestInit) =>
-    fetchApi<T>(endpoint, { 
-      method: "POST", 
-      body: data ? JSON.stringify(data) : undefined,
-      ...options 
-    }),
-  
-  put: <T>(endpoint: string, data?: any, options?: RequestInit) =>
-    fetchApi<T>(endpoint, { 
-      method: "PUT", 
-      body: data ? JSON.stringify(data) : undefined,
-      ...options 
-    }),
-  
-  delete: <T>(endpoint: string, options?: RequestInit) =>
-    fetchApi<T>(endpoint, { method: "DELETE", ...options }),
-};
+  get: <T>(endpoint: string, config = {}) =>
+    axiosInstance.get<T>(endpoint, config).then((res) => res.data),
+
+  post: <T>(endpoint: string, data?: any, config = {}) =>
+    axiosInstance.post<T>(endpoint, data, config).then((res) => res.data),
+
+  put: <T>(endpoint: string, data?: any, config = {}) =>
+    axiosInstance.put<T>(endpoint, data, config).then((res) => res.data),
+
+  delete: <T>(endpoint: string, config = {}) =>
+    axiosInstance.delete<T>(endpoint, config).then((res) => res.data),
+}

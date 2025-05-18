@@ -1,8 +1,13 @@
-
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -20,195 +25,239 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/AuthContext";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import type { PointLocation } from "@/hooks/useGeolocation";
 
-const Register = () => {
-  const [name, setName] = useState("");
+const avatars = ["1.png", "2.png", "3.png", "4.png", "5.png"];
+
+export default function Register() {
+  const { location, error: locationError, loading: locationLoading, getLocation } = useGeolocation();
+  const navigate = useNavigate();
+
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [sport, setSport] = useState("pingpong");
-  const [skillLevel, setSkillLevel] = useState("");
-  const [avatar, setAvatar] = useState("avatar1.png");
+  const [avatar, setAvatar] = useState("");
+  const [skillLevel, setSkillLevel] = useState<"beginner" | "intermediate" | "pro">("beginner");
 
-  const avatarOptions = [
-    { value: "1.png", label: "Avatar 1" },
-    { value: "2.png", label: "Avatar 2" },
-    { value: "3.png", label: "Avatar 3" },
-    { value: "4.png", label: "Avatar 4" },
-    { value: "5.png", label: "Avatar 5" },
-    { value: "6.png", label: "Avatar 6" },
-    { value: "7.png", label: "Avatar 7" },
-    { value: "8.png", label: "Avatar 8" },
-    { value: "9.png", label: "Avatar 9" },
-  ];
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { register } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const BACKUP_LOCATION: PointLocation = {
+    type: 'Point',
+    coordinates: [19, 47.5],
+  };
+
+  // Automatically prompt for location on mount
+  useEffect(() => {
+    getLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (location) {
+      console.log('📍 Location fetched:', location);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    if (locationError) {
+      console.warn('❌ Location error:', locationError);
+    }
+  }, [locationError]);
+
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (password !== confirmPassword) {
-      toast.error("Passwords don't match", {
-        description: "Please ensure both passwords match",
-      });
+      toast.error("Passwords do not match.");
       return;
     }
 
-    // In a real app, this would call a registration API
-    toast.success("Registration successful", {
-      description: "Welcome to Social4Sports!",
-    });
+    setIsSubmitting(true);
+    try {
+      // Log the location object and coordinates
+      let usedLocation = location;
+      if (!location || !Array.isArray(location.coordinates) || location.coordinates.length !== 2) {
+        usedLocation = BACKUP_LOCATION;
+        console.warn('⚠️ No geolocation available, using backup location:', BACKUP_LOCATION);
+      } else {
+        console.log('🌍 Using geolocation coordinates:', location.coordinates);
+      }
+      const payload: any = {
+        fullName,
+        email,
+        password,
+        avatar,
+        skillLevel,
+        location: usedLocation,
+      };
+      console.log('📝 Registering user with data:', payload);
+      await register(payload);
 
-    // Reset form
-    setName("");
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-    setSkillLevel("");
+      toast.success("Registered successfully!");
+      navigate("/login");
+      // Optionally redirect or login
+    } catch (err: any) {
+      if (err?.message?.includes("Email already in use")) {
+        toast.error("This email is already registered.", {
+          description: "Please use another email or log in instead.",
+          action: {
+            label: "Go to Login",
+            onClick: () => navigate("/login"),
+          },
+        });
+      } else {
+        toast.error("Registration failed.", {
+          description: err?.message || "An unexpected error occurred. Please try again.",
+        });
+      }
+      console.error('❌ Registration error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <PageLayout showMobileNav={false}>
-      <div className="max-w-md mx-auto pt-10 animate-fade-in">
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Create an account</CardTitle>
-            <CardDescription>
-              Join the Social4Sports community today
+    <PageLayout>
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center text-2xl">Register</CardTitle>
+            <CardDescription className="text-center">
+              Create your account to get started.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="flex flex-col items-center mb-6">
-                <div className="mb-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="rounded-full p-0 h-24 w-24">
-                        <Avatar className="h-24 w-24">
-                          <AvatarImage src={`/${avatar}`} alt="Profile picture" />
-                          <AvatarFallback>{name.charAt(0) || "Avatar"}</AvatarFallback>
+            <div className="flex flex-col items-center gap-2 mb-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={getLocation}
+                disabled={locationLoading}
+                className="w-full"
+              >
+                {locationLoading ? "Getting Location..." : "Get Location"}
+              </Button>
+              {location && (
+                <p className="text-xs text-green-600 text-center mt-1">
+                  Location: [{location.coordinates[1].toFixed(4)}, {location.coordinates[0].toFixed(4)}]<br />
+                  <span className="text-xs">Raw coordinates: {JSON.stringify(location.coordinates)}</span>
+                </p>
+              )}
+              {!location && (
+                <p className="text-xs text-yellow-600 text-center mt-1">
+                  Using backup location: [47.5, 19]<br />
+                  <span className="text-xs">Raw coordinates: [19, 47.5]</span>
+                </p>
+              )}
+            </div>
+            <form onSubmit={handleRegister} className="space-y-4">
+              <Input
+                type="text"
+                placeholder="Full Name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
+              <Input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+
+              <Input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+
+              <Input
+                type="password"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Choose Avatar
+                </label>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="w-full">
+                      <div className="flex items-center gap-2">
+                        <Avatar>
+                          <AvatarImage src={`/avatars/${avatar}`} />
+                          <AvatarFallback>AV</AvatarFallback>
                         </Avatar>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="center">
-                      <DropdownMenuLabel>Select Avatar</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <div className="grid grid-cols-3 gap-2 p-2">
-                        {avatarOptions.map((option) => (
-                          <DropdownMenuItem
-                            key={option.value}
-                            className="p-1 cursor-pointer"
-                            onClick={() => setAvatar(option.value)}
-                          >
-                            <Avatar>
-                              <AvatarImage src={`/${option.value}`} alt={option.label} />
-                              <AvatarFallback>{option.label.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                          </DropdownMenuItem>
-                        ))}
+                        <span>{avatar}</span>
                       </div>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-                <p className="text-sm text-muted-foreground">Click to select avatar</p>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    <DropdownMenuLabel>Select Avatar</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {avatars.map((img) => (
+                      <DropdownMenuItem
+                        key={img}
+                        onClick={() => setAvatar(img)}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Avatar>
+                            <AvatarImage src={`${img}`} />
+                            <AvatarFallback>AV</AvatarFallback>
+                          </Avatar>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
-              <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium">
-                  Full Name
-                </label>
-                <Input
-                  id="name"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
-                  Email
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">
-                  Password
-                </label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="text-sm font-medium">
-                  Confirm Password
-                </label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="sport" className="text-sm font-medium">
-                  Primary Sport
-                </label>
-                <Select defaultValue={sport} onValueChange={setSport}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your primary sport" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pingpong">Ping Pong</SelectItem>
-                    <SelectItem value="tennis" disabled>Tennis (Coming Soon)</SelectItem>
-                    <SelectItem value="badminton" disabled>Badminton (Coming Soon)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="skillLevel" className="text-sm font-medium">
+              <div>
+                <label className="block text-sm font-medium mb-1">
                   Skill Level
                 </label>
-                <Select value={skillLevel} onValueChange={setSkillLevel}>
-                  <SelectTrigger>
+                <Select
+                  value={skillLevel}
+                  onValueChange={value =>
+                    setSkillLevel(value as "beginner" | "intermediate" | "pro")
+                  }
+                >
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select your skill level" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="beginner">Beginner</SelectItem>
                     <SelectItem value="intermediate">Intermediate</SelectItem>
-                    <SelectItem value="advanced">Advanced</SelectItem>
+                    <SelectItem value="pro">Pro</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <Button type="submit" className="w-full bg-sport-blue hover:bg-sport-blue/90">
-                Sign Up
+
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Registering..." : "Register"}
               </Button>
             </form>
-            <div className="mt-6 text-center text-sm">
+
+            <p className="mt-4 text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link to="/login" className="text-sport-blue hover:underline">
-                Sign in
+              <Link to="/login" className="text-blue-500 hover:underline">
+                Login
               </Link>
-            </div>
+            </p>
           </CardContent>
         </Card>
       </div>
     </PageLayout>
   );
-};
-
-export default Register;
+}

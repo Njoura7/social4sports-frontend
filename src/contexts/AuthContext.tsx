@@ -1,7 +1,7 @@
-
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { User, userService } from "@/services/userService";
+import { User, userService, RegisterData } from "@/services/userService";
 import { AUTH_CONFIG } from "@/config/env";
+import {jwtDecode} from "jwt-decode";
 
 const TOKEN_NAME = AUTH_CONFIG.TOKEN_NAME;
 
@@ -10,17 +10,21 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
+  setUser: (user: User | null) => void;
+  refreshUserById: (id: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
   isAuthenticated: false,
-  login: async () => {},
-  register: async () => {},
-  logout: async () => {},
+  login: async () => { },
+  register: async () => { },
+  logout: async () => { },
+  setUser: () => { },
+  refreshUserById: async () => { },
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -39,11 +43,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       try {
-        const userData = await userService.getCurrentUser();
+        const decoded: any = jwtDecode(token);
+        const userId = decoded.id;
+        const userData = await userService.getUserById(userId);
         setUser(userData);
       } catch (error) {
         // Clear invalid token
         localStorage.removeItem(TOKEN_NAME);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -55,18 +62,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const { user, token } = await userService.login({ email, password });
-      localStorage.setItem(TOKEN_NAME, token);
-      setUser(user);
+      const { accessToken } = await userService.login({ email, password });
+      localStorage.setItem(TOKEN_NAME, accessToken);
+      const decoded: any = jwtDecode(accessToken);
+      const userId = decoded.id;
+      const userData = await userService.getUserById(userId);
+      setUser(userData);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (data: RegisterData) => {
     setIsLoading(true);
     try {
-      const { user, token } = await userService.register({ name, email, password });
+      const { user, token } = await userService.register(data);
       localStorage.setItem(TOKEN_NAME, token);
       setUser(user);
     } finally {
@@ -89,6 +99,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         register,
         logout,
+        setUser,
+        refreshUserById: async (id: string) => {
+          setIsLoading(true);
+          try {
+            const userData = await userService.getUserById(id);
+            setUser(userData);
+          } finally {
+            setIsLoading(false);
+          }
+        },
       }}
     >
       {children}

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
@@ -6,33 +5,54 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { userService } from "@/services/userService";
+import { jwtDecode } from "jwt-decode";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
-  const { login } = useAuth();
+
   const navigate = useNavigate();
+  const { login, refreshUserById } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+    let loadingToastId;
     try {
-      await login(email, password);
+      loadingToastId = toast.loading("Logging in...");
+      console.log("🔑 Attempting login with:", { email, password });
+      const loginResult = await userService.login({ email, password });
+      const { accessToken } = loginResult;
+      localStorage.setItem("authToken", accessToken);
+      console.log("✅ Login API response (accessToken):", accessToken);
+
+      // Decode the accessToken to get the user ID
+      const decoded: any = jwtDecode(accessToken);
+      const userId = decoded.id;
+      console.log("🆔 Decoded user ID from accessToken:", userId);
+
+      // Fetch the user by ID
+      const userById = await userService.getUserById(userId);
+      console.log("✅ User fetched by ID:", userById);
+      await refreshUserById(userById._id);
+
       toast.success("Login successful", {
-        description: "Welcome back to Social4Sports!"
+        description: `Welcome back!`,
       });
-      navigate("/");
-    } catch (error) {
-      // Error is already handled in the auth context
+      navigate("/profile");
+    } catch (error: any) {
+      toast.error("Login failed", {
+        description: error?.response?.data?.message || error?.message || "Invalid credentials.",
+      });
+      console.error("❌ Login error:", error);
     } finally {
       setIsLoading(false);
+      if (loadingToastId) toast.dismiss(loadingToastId);
     }
   };
 
@@ -85,8 +105,8 @@ const Login = () => {
                 />
               </div>
               <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="remember" 
+                <Checkbox
+                  id="remember"
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(!!checked)}
                   disabled={isLoading}
@@ -98,8 +118,8 @@ const Login = () => {
                   Remember me
                 </label>
               </div>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-sport-blue hover:bg-sport-blue/90"
                 disabled={isLoading}
               >

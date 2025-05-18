@@ -1,9 +1,11 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import RequireAuth from "@/components/auth/RequireAuth";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { jwtDecode } from "jwt-decode";
+
 
 // Page imports
 import Index from "./pages/Index";
@@ -24,13 +26,38 @@ const App = () => (
         <Toaster />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/find" element={<FindPlayers />} />
-            <Route path="/matches" element={<Matches />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/profile" element={<Profile />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/" element={
+              <RequireAuth>
+                <Index />
+              </RequireAuth>
+            } />
+            <Route path="/find" element={
+              <RequireAuth>
+                <FindPlayers />
+              </RequireAuth>
+            } />
+            <Route path="/matches" element={
+              <RequireAuth>
+                <Matches />
+              </RequireAuth>
+            } />
+            <Route path="/messages" element={
+              <RequireAuth>
+                <Messages />
+              </RequireAuth>
+            } />
+            <Route path="/profile" element={
+              <RequireAuth>
+                <Profile />
+              </RequireAuth>
+            } />
+            <Route path="/users/:id" element={
+              <RequireAuth>
+                <Profile />
+              </RequireAuth>
+            } />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
