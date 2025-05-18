@@ -2,13 +2,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Match,UserRef } from "@/types/match";
+import { Match, UserRef } from "@/types/match";
 
 interface MatchCardProps {
   match: Match;
   currentUserId?: string;
   onReschedule: (matchId: string) => void;
   onCancel: (matchId: string) => void;
+  onConfirm?: (matchId: string) => void; // Make optional since not all parents may need it
 }
 
 const getInitials = (name?: string) => {
@@ -25,15 +26,30 @@ const getPlayerName = (player: UserRef, currentUserId?: string) => {
   return player.fullName || player.email?.split('@')[0] || 'Opponent';
 };
 
-export const MatchCard = ({ match, currentUserId, onReschedule, onCancel }: MatchCardProps) => {
+export const MatchCard = ({ 
+  match, 
+  currentUserId, 
+  onReschedule, 
+  onCancel,
+  onConfirm
+}: MatchCardProps) => {
+  const isOpponent = currentUserId === match.opponent._id;
+  const isInitiator = currentUserId === match.initiator._id;
+  const showConfirmation = isOpponent && match.status === "AwaitingConfirmation";
+  const showCancelButton = (isInitiator || isOpponent) && 
+                         match.status !== "Completed" && 
+                         match.status !== "Cancelled";
+
   const initiatorName = getPlayerName(match.initiator, currentUserId);
   const opponentName = getPlayerName(match.opponent, currentUserId);
 
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4">
+        {/* Player vs Player Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
+            {/* Player Avatars */}
             <div className="flex -space-x-2">
               <Avatar className="h-10 w-10 border-2 border-white">
                 {match.initiator.avatar && (
@@ -53,13 +69,14 @@ export const MatchCard = ({ match, currentUserId, onReschedule, onCancel }: Matc
               </Avatar>
             </div>
 
+            {/* Player Names and Info */}
             <div>
               <h3 className="font-medium flex items-center">
-                <span className={match.initiator._id === currentUserId ? "font-bold" : ""}>
+                <span className={isInitiator ? "font-bold" : ""}>
                   {initiatorName}
                 </span>
                 <span className="mx-2 text-gray-400">vs</span>
-                <span className={match.opponent._id === currentUserId ? "font-bold" : ""}>
+                <span className={isOpponent ? "font-bold" : ""}>
                   {opponentName}
                 </span>
               </h3>
@@ -68,12 +85,15 @@ export const MatchCard = ({ match, currentUserId, onReschedule, onCancel }: Matc
                   {match.location || "Location not specified"}
                 </p>
                 {match.initiator.skillLevel && match.opponent.skillLevel && (
-                  <span className="text-xs text-gray-400">• {match.initiator.skillLevel} vs {match.opponent.skillLevel}</span>
+                  <span className="text-xs text-gray-400">
+                    • {match.initiator.skillLevel} vs {match.opponent.skillLevel}
+                  </span>
                 )}
               </div>
             </div>
           </div>
 
+          {/* Match Date/Time */}
           <div className="text-right">
             <p className="font-medium">
               {new Date(match.scheduledFor).toLocaleDateString(undefined, {
@@ -91,6 +111,7 @@ export const MatchCard = ({ match, currentUserId, onReschedule, onCancel }: Matc
           </div>
         </div>
 
+        {/* Match Status and Actions */}
         <div className="flex justify-between items-center mt-4 pt-3 border-t">
           <Badge
             className={
@@ -105,14 +126,14 @@ export const MatchCard = ({ match, currentUserId, onReschedule, onCancel }: Matc
           </Badge>
           
           <div className="space-x-2">
-            {match.status !== "Completed" && match.status !== "Cancelled" && (
+            {showConfirmation && onConfirm ? (
               <>
                 <Button 
-                  variant="outline" 
+                  variant="default" 
                   size="sm"
-                  onClick={() => onReschedule(match._id)}
+                  onClick={() => onConfirm(match._id)}
                 >
-                  Reschedule
+                  Accept Match
                 </Button>
                 <Button
                   variant="outline"
@@ -120,13 +141,34 @@ export const MatchCard = ({ match, currentUserId, onReschedule, onCancel }: Matc
                   className="text-red-500 border-red-200 hover:bg-red-50"
                   onClick={() => onCancel(match._id)}
                 >
-                  Cancel
+                  Decline
                 </Button>
               </>
-            )}
+            ) : showCancelButton ? (
+              <>
+                {isInitiator && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => onReschedule(match._id)}
+                  >
+                    Reschedule
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-red-500 border-red-200 hover:bg-red-50"
+                  onClick={() => onCancel(match._id)}
+                >
+                  {isOpponent ? "Decline" : "Cancel Match"}
+                </Button>
+              </>
+            ) : null}
+            
             {match.status === "Completed" && match.score && (
               <Badge variant="secondary">
-                {match.score[0]} - {match.score[1]}
+                {match.score.join(" - ")}
               </Badge>
             )}
           </div>

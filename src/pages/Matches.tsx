@@ -4,13 +4,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
 import { toast } from "sonner";
-import { userService } from "@/services/userService";
+import { userService, User } from "@/services/userService";
 import { matchService } from "@/services/matchService";
 import { useAuth } from "@/contexts/AuthContext";
 import { ScheduleMatchDialog } from "@/components/matches/ScheduleMatchDialog";
 import { MatchesList } from "@/components/matches/MatchesList";
 import { Match } from "@/types/match";
-import { User } from "@/services/userService";
 
 const BACKUP_LOCATION = {
   type: "Point",
@@ -46,8 +45,10 @@ export const Matches = () => {
 
   useEffect(() => {
     if (!showModal || !selectedSkill) return;
+    
     setSearching(true);
     const [lng, lat] = BACKUP_LOCATION.coordinates;
+    
     userService
       .searchPlayers({ skillLevel: selectedSkill, lat, lng, radius: 10000 })
       .then(setAllNearbyPlayers)
@@ -76,11 +77,6 @@ export const Matches = () => {
       toast.error("Failed to cancel match");
       console.error(error);
     }
-  };
-
-  const handleRescheduleMatch = (matchId: string) => {
-    // Implement reschedule logic
-    toast.info("Reschedule feature coming soon");
   };
 
   return (
@@ -120,7 +116,7 @@ export const Matches = () => {
               matches={upcomingMatches}
               currentUserId={currentUser?._id}
               loading={loadingMatches}
-              onReschedule={handleRescheduleMatch}
+              onReschedule={() => toast.info("Reschedule feature coming soon")}
               onCancel={handleCancelMatch}
               onScheduleClick={() => setShowModal(true)}
             />
@@ -131,7 +127,7 @@ export const Matches = () => {
               matches={[]}
               currentUserId={currentUser?._id}
               loading={false}
-              onReschedule={handleRescheduleMatch}
+              onReschedule={() => toast.info("Reschedule feature coming soon")}
               onCancel={handleCancelMatch}
               onScheduleClick={() => setShowModal(true)}
             />

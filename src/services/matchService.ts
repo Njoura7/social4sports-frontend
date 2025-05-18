@@ -48,8 +48,8 @@ export const matchService = {
   confirmMatch: (matchId: string) => 
     api.put<Match>(`/matches/${matchId}/confirm`),
   
-  cancelMatch: (matchId: string) => 
-    api.put<Match>(`/matches/${matchId}/cancel`),
+  cancelMatch: (matchId: string) =>  
+  api.delete(`/matches/${matchId}`),
   
   recordResult: (data: RecordResultData) => 
     api.put<Match>(`/matches/${data.matchId}/result`, {
