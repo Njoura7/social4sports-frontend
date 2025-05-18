@@ -79,6 +79,17 @@ export const Matches = () => {
     }
   };
 
+  const handleConfirmMatch = async (matchId: string) => {
+    try {
+      await matchService.confirmMatch(matchId);
+      toast.success("Match confirmed!");
+      fetchMatches();
+    } catch (error) {
+      toast.error("Failed to confirm match");
+      console.error(error);
+    }
+  };
+
   return (
     <PageLayout>
       <div className="max-w-4xl mx-auto animate-fade-in">
@@ -118,6 +129,7 @@ export const Matches = () => {
               loading={loadingMatches}
               onReschedule={() => toast.info("Reschedule feature coming soon")}
               onCancel={handleCancelMatch}
+              onConfirm={handleConfirmMatch}
               onScheduleClick={() => setShowModal(true)}
             />
           </TabsContent>
@@ -129,6 +141,7 @@ export const Matches = () => {
               loading={false}
               onReschedule={() => toast.info("Reschedule feature coming soon")}
               onCancel={handleCancelMatch}
+              onConfirm={handleConfirmMatch}
               onScheduleClick={() => setShowModal(true)}
             />
           </TabsContent>

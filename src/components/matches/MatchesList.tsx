@@ -1,15 +1,15 @@
 import { Card, CardContent } from "@/components/ui/card";
+import{ MatchCard } from "./MatchCard"
 import { Button } from "@/components/ui/button";
 import { Match } from "@/types/match";
-import { MatchCard } from "./MatchCard";
 
 interface MatchesListProps {
   matches: Match[];
   currentUserId?: string;
   loading: boolean;
-  error?: Error;
   onReschedule: (matchId: string) => void;
   onCancel: (matchId: string) => void;
+  onConfirm: (matchId: string) => void;
   onScheduleClick: () => void;
 }
 
@@ -17,9 +17,9 @@ export const MatchesList = ({
   matches,
   currentUserId,
   loading,
-  error,
   onReschedule,
   onCancel,
+  onConfirm,
   onScheduleClick
 }: MatchesListProps) => {
   if (loading) {
@@ -30,25 +30,15 @@ export const MatchesList = ({
     );
   }
 
-  if (error) {
-    return (
-      <Card>
-        <CardContent className="py-8 text-center">
-          <p className="text-red-500">Error loading matches</p>
-          <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
-            Retry
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
   if (matches.length === 0) {
     return (
       <Card>
         <CardContent className="py-8 text-center">
           <p className="text-gray-600">No matches found</p>
-          <Button className="mt-4 bg-sport-blue hover:bg-sport-blue/90" onClick={onScheduleClick}>
+          <Button 
+            className="mt-4 bg-sport-blue hover:bg-sport-blue/90" 
+            onClick={onScheduleClick}
+          >
             Schedule a Match
           </Button>
         </CardContent>
@@ -65,6 +55,7 @@ export const MatchesList = ({
           currentUserId={currentUserId}
           onReschedule={onReschedule}
           onCancel={onCancel}
+          onConfirm={onConfirm}
         />
       ))}
     </div>
