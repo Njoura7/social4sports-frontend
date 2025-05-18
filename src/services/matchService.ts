@@ -1,31 +1,37 @@
-
 import { api } from "./api";
 
 // Types
+export interface UserRef {
+  _id: string;
+  email?: string;
+  avatar?: string;
+  skillLevel?: string;
+  fullName?: string;
+}
+
 export interface Match {
-  id: string;
-  opponentId: string;
-  opponentName: string;
+  _id: string;
+  initiator: UserRef;
+  opponent: UserRef;
   location: string;
-  date: string;
-  time?: string;
-  confirmed: boolean;
-  result?: "Win" | "Loss" | "Draw";
-  score?: string;
+  scheduledFor: string;
+  status: "AwaitingConfirmation" | "Confirmed" | "Cancelled" | "Completed";
+  score?: string[];
   createdAt: string;
+  updatedAt: string;
+  __v?: number;
 }
 
 export interface ScheduleMatchData {
-  opponentId: string;
+  opponent: string; // opponent ID
   location: string;
-  date: string;
-  time: string;
+  scheduledFor: string; // ISO date string
 }
 
 export interface RecordResultData {
   matchId: string;
-  result: "Win" | "Loss" | "Draw";
-  score: string;
+  score: string[];
+  status?: "Completed";
 }
 
 // Match services
@@ -40,11 +46,17 @@ export const matchService = {
     api.post<Match>("/matches", data),
   
   confirmMatch: (matchId: string) => 
-    api.put(`/matches/${matchId}/confirm`),
+    api.put<Match>(`/matches/${matchId}/confirm`),
   
   cancelMatch: (matchId: string) => 
-    api.delete(`/matches/${matchId}`),
+    api.put<Match>(`/matches/${matchId}/cancel`),
   
   recordResult: (data: RecordResultData) => 
-    api.put(`/matches/${data.matchId}/result`, data),
+    api.put<Match>(`/matches/${data.matchId}/result`, {
+      score: data.score,
+      status: "Completed"
+    }),
+  
+  rescheduleMatch: (matchId: string, newDate: string) =>
+    api.put<Match>(`/matches/${matchId}/reschedule`, { scheduledFor: newDate }),
 };
