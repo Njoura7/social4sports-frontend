@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,58 +13,66 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Search } from "lucide-react";
+import { playerService } from "@/services/playerService";
+import { User } from "@/services/userService"; // Assuming User type is exported from userService
 
 const FindPlayers = () => {
-  const [searchQuery, setSearchQuery] = useState("");
   const [skillLevel, setSkillLevel] = useState("");
-  const [distance, setDistance] = useState("");
-  const [availability, setAvailability] = useState("");
+  const [radius, setRadius] = useState("10000"); // Default radius 10km
+  const [foundPlayers, setFoundPlayers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const players = [
-    {
-      id: 1,
-      name: "Alex Johnson",
-      skillLevel: "Intermediate",
-      distance: "2.3 miles",
-      availability: "Evenings, Weekends",
-      matchesPlayed: 24,
-      winRate: "67%",
-    },
-    {
-      id: 2,
-      name: "Sarah Williams",
-      skillLevel: "Advanced",
-      distance: "4.1 miles",
-      availability: "Weekends",
-      matchesPlayed: 47,
-      winRate: "72%",
-    },
-    {
-      id: 3,
-      name: "Michael Chen",
-      skillLevel: "Beginner",
-      distance: "1.8 miles",
-      availability: "Mornings, Weekends",
-      matchesPlayed: 12,
-      winRate: "50%",
-    },
-    {
-      id: 4,
-      name: "Emma Rodriguez",
-      skillLevel: "Intermediate",
-      distance: "3.5 miles",
-      availability: "Evenings",
-      matchesPlayed: 31,
-      winRate: "58%",
-    },
-  ];
+  // State for user's current location
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
-  // Filter players based on selected skill level
-  const filteredPlayers = skillLevel
-    ? players.filter(player => 
-        player.skillLevel.toLowerCase() === skillLevel.toLowerCase()
-      )
-    : players;
+  // Effect to get user's location on component mount
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+        },
+        (err) => {
+          console.error("Error getting user location:", err);
+          setError("Could not retrieve your location. Please enable location services.");
+        }
+      );
+    } else {
+      setError("Geolocation is not supported by your browser.");
+    }
+  }, []);
+
+  const handleSearch = async () => {
+    if (!userLocation) {
+      setError("Please wait while we get your location.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await playerService.findPlayers({
+        skillLevel: skillLevel === 'any' ? undefined : skillLevel,
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        radius: radius ? parseInt(radius, 10) : undefined,
+      });
+      setFoundPlayers(response);
+    } catch (err) {
+      console.error("Error searching for players:", err);
+      setError("Failed to search for players. Please try again.");
+    }
+    setLoading(false);
+  };
+
+  // Trigger search automatically once location is available or filters change
+  useEffect(() => {
+    if (userLocation) {
+      handleSearch();
+    }
+    // Add skillLevel and radius as dependencies to re-run search when they change
+  }, [userLocation, skillLevel, radius]);
 
   return (
     <PageLayout>
@@ -78,51 +86,58 @@ const FindPlayers = () => {
                 <SelectValue placeholder="Skill Level" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="any">Any Skill Level</SelectItem>
                 <SelectItem value="beginner">Beginner</SelectItem>
                 <SelectItem value="intermediate">Intermediate</SelectItem>
-                <SelectItem value="advanced">Advanced</SelectItem>
+                <SelectItem value="pro">Pro</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={distance} onValueChange={setDistance}>
+            <Select value={radius} onValueChange={setRadius}>
               <SelectTrigger>
-                <SelectValue placeholder="Distance" />
+                <SelectValue placeholder="Distance Radius" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">Within 1 mile</SelectItem>
-                <SelectItem value="5">Within 5 miles</SelectItem>
-                <SelectItem value="10">Within 10 miles</SelectItem>
-                <SelectItem value="25">Within 25 miles</SelectItem>
+                <SelectItem value="1000">Within 1 km</SelectItem>
+                <SelectItem value="5000">Within 5 km</SelectItem>
+                <SelectItem value="10000">Within 10 km</SelectItem>
+                <SelectItem value="25000">Within 25 km</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
+        {loading && <p>Loading players...</p>}
+        {error && <p className="text-red-500">{error}</p>}
+
         <div className="space-y-4">
-          {filteredPlayers.map((player) => (
-            <Card key={player.id} className="sport-card">
-              <CardContent className="p-4 flex items-center">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={`/avatar-${player.id}.png`} alt={player.name} />
-                  <AvatarFallback>{player.name.charAt(0)}{player.name.split(" ")[1]?.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="ml-4 flex-grow">
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-medium">{player.name}</h3>
-                    <Badge variant={player.skillLevel === "Advanced" ? "default" : 
-                               player.skillLevel === "Intermediate" ? "secondary" : 
-                               "outline"}>
-                      {player.skillLevel}
-                    </Badge>
+          {foundPlayers.length > 0 ? (
+            foundPlayers.map((player) => (
+              <Card key={player._id} className="sport-card">
+                <CardContent className="p-4 flex items-center">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={player.avatar} alt={player.fullName} />
+                    <AvatarFallback>{player.fullName.charAt(0)}{player.fullName.split(" ")[1]?.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className="ml-4 flex-grow">
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-medium">{player.fullName}</h3>
+                      <Badge variant={player.skillLevel === "pro" ? "default" :
+                                 player.skillLevel === "intermediate" ? "secondary" :
+                                 "outline"}>
+                        {player.skillLevel}
+                      </Badge>
+                    </div>
+                    <div className="text-sm text-gray-600 mt-1">
+                      <p>Skill Level: {player.skillLevel}</p>
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-600 mt-1">
-                    <p>{player.distance} away • Available: {player.availability}</p>
-                    <p className="mt-1">{player.matchesPlayed} matches • {player.winRate} win rate</p>
-                  </div>
-                </div>
-                <Button className="ml-4 bg-sport-blue hover:bg-sport-blue/90">Connect</Button>
-              </CardContent>
-            </Card>
-          ))}
+                  <Button className="ml-4 bg-sport-blue hover:bg-sport-blue/90">Connect</Button>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            !loading && !error && userLocation && <p>No players found matching your criteria.</p>
+          )}
         </div>
       </div>
     </PageLayout>
