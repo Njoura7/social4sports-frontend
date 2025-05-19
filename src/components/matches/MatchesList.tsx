@@ -10,6 +10,7 @@ interface MatchesListProps {
   onReschedule: (matchId: string) => void;
   onCancel: (matchId: string) => void;
   onConfirm: (matchId: string) => void;
+  onResultRecorded: (matchId: string, updatedMatch?: Match) => void;
   onScheduleClick: () => void;
 }
 
@@ -20,6 +21,7 @@ export const MatchesList = ({
   onReschedule,
   onCancel,
   onConfirm,
+  onResultRecorded,
   onScheduleClick
 }: MatchesListProps) => {
   console.log("MatchesList", matches);
@@ -57,7 +59,7 @@ export const MatchesList = ({
           onReschedule={onReschedule}
           onCancel={onCancel}
           onConfirm={onConfirm}
-          onResultRecorded={onConfirm}
+          onResultRecorded={onResultRecorded}
         />
       ))}
     </div>

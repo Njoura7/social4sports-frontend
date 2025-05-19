@@ -96,13 +96,17 @@ export const Matches = () => {
   const handleConfirmMatch = async (matchId: string) => {
     try {
       const currentMatch = upcomingMatches.find(m => m._id === matchId);
+      if (!currentMatch) {
+        throw new Error('Match not found in current state');
+      }
+
       const updatedMatch = await matchService.confirmMatch(matchId);
 
       // Merge with existing player data
       const mergedMatch = {
         ...updatedMatch,
-        initiator: currentMatch?.initiator || updatedMatch.initiator,
-        opponent: currentMatch?.opponent || updatedMatch.opponent
+        initiator: currentMatch.initiator,
+        opponent: currentMatch.opponent
       };
 
       setUpcomingMatches(prev =>
@@ -111,23 +115,41 @@ export const Matches = () => {
       toast.success('Match confirmed!');
     } catch (error) {
       console.error('Confirmation failed:', error);
-      toast.error(error.message);
+      if (error.message.includes('not found') || error.message.includes('not allowed')) {
+        // If the match is not found or not allowed, refresh the matches list
+        await fetchUpcomingMatches();
+        toast.error('Match status has changed. Please try again.');
+      } else {
+        toast.error(error.message || 'Failed to confirm match');
+      }
     }
   };
 
   const handleResultRecorded = async (matchId: string, updatedMatch?: Match) => {
-    if (updatedMatch) {
-      const currentMatch = upcomingMatches.find(m => m._id === matchId);
-      const mergedMatch = {
-        ...updatedMatch,
-        initiator: currentMatch?.initiator || updatedMatch.initiator,
-        opponent: currentMatch?.opponent || updatedMatch.opponent
-      };
+    try {
+      if (updatedMatch) {
+        const currentMatch = upcomingMatches.find(m => m._id === matchId);
+        if (!currentMatch) {
+          throw new Error('Match not found in current state');
+        }
 
-      setUpcomingMatches(prev => prev.filter(m => m._id !== matchId));
-      setPastMatches(prev => [...prev, mergedMatch]);
+        const mergedMatch = {
+          ...updatedMatch,
+          initiator: currentMatch.initiator,
+          opponent: currentMatch.opponent
+        };
+
+        setUpcomingMatches(prev => prev.filter(m => m._id !== matchId));
+        setPastMatches(prev => [...prev, mergedMatch]);
+      }
+      // Always refresh both lists to ensure consistency
+      await Promise.all([fetchUpcomingMatches(), fetchPastMatches()]);
+    } catch (error) {
+      console.error('Failed to update match result:', error);
+      toast.error('Failed to update match result. Please try again.');
+      // Refresh both lists to ensure consistency
+      await Promise.all([fetchUpcomingMatches(), fetchPastMatches()]);
     }
-    await Promise.all([fetchUpcomingMatches(), fetchPastMatches()]);
   };
   const handleCancelMatch = async (matchId: string) => {
     try {
@@ -180,6 +202,7 @@ export const Matches = () => {
               onReschedule={() => toast.info("Reschedule feature coming soon")}
               onCancel={handleCancelMatch}
               onConfirm={handleConfirmMatch}
+              onResultRecorded={handleResultRecorded}
               onScheduleClick={() => setShowModal(true)}
             />
           </TabsContent>
@@ -191,7 +214,8 @@ export const Matches = () => {
               loading={loadingMatches.past}
               onReschedule={() => toast.info("Reschedule feature coming soon")}
               onCancel={handleCancelMatch}
-              onConfirm={handleResultRecorded} // Update this
+              onConfirm={handleResultRecorded}
+              onResultRecorded={handleResultRecorded}
               onScheduleClick={() => setShowModal(true)}
             />
           </TabsContent>
