@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Match, UserRef } from "@/types/match";
+import { RecordResultDialog } from "./RecordResultDialog";
 
 interface MatchCardProps {
   match: Match;
@@ -10,6 +11,7 @@ interface MatchCardProps {
   onReschedule: (matchId: string) => void;
   onCancel: (matchId: string) => void;
   onConfirm: (matchId: string) => void;
+  onResultRecorded: (matchId: string, updatedMatch?: Match) => void;
 }
 
 const getInitials = (name?: string) => {
@@ -26,22 +28,35 @@ const getPlayerName = (player: UserRef, currentUserId?: string) => {
   return player.fullName || player.email?.split('@')[0] || 'Opponent';
 };
 
-export const MatchCard = ({ 
-  match, 
-  currentUserId, 
-  onReschedule, 
+export const MatchCard = ({
+  match,
+  currentUserId,
+  onReschedule,
   onCancel,
-  onConfirm
+  onConfirm,
+  onResultRecorded
 }: MatchCardProps) => {
   const isOpponent = currentUserId === match.opponent._id;
   const isInitiator = currentUserId === match.initiator._id;
   const showConfirmButton = isOpponent && match.status === "AwaitingConfirmation";
-  const showCancelButton = (isInitiator || isOpponent) && 
-                         match.status !== "Completed" && 
-                         match.status !== "Cancelled";
+  const showCancelButton = (isInitiator || isOpponent) &&
+    match.status !== "Completed" &&
+    match.status !== "Cancelled";
 
   const initiatorName = getPlayerName(match.initiator, currentUserId);
   const opponentName = getPlayerName(match.opponent, currentUserId);
+
+  const getResultDisplay = (match: Match, currentUserId?: string) => {
+    if (!match.result) return null;
+
+    const isInitiator = currentUserId === match.initiator._id;
+    if (isInitiator) {
+      return match.result === "Win" ? "You won" : "You lost";
+    } else {
+      // For opponent, invert the result
+      return match.result === "Win" ? "You lost" : "You won";
+    }
+  };
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -109,19 +124,19 @@ export const MatchCard = ({
           <Badge
             className={
               match.status === "Confirmed" ? "bg-green-100 text-green-800" :
-              match.status === "Completed" ? "bg-blue-100 text-blue-800" :
-              match.status === "Cancelled" ? "bg-gray-100 text-gray-800" :
-              "bg-amber-100 text-amber-800"
+                match.status === "Completed" ? "bg-blue-100 text-blue-800" :
+                  match.status === "Cancelled" ? "bg-gray-100 text-gray-800" :
+                    "bg-amber-100 text-amber-800"
             }
             variant="outline"
           >
             {match.status.replace(/([A-Z])/g, ' $1').trim()}
           </Badge>
-          
+
           <div className="space-x-2">
             {showConfirmButton && (
-              <Button 
-                variant="default" 
+              <Button
+                variant="default"
                 size="sm"
                 onClick={() => onConfirm(match._id)}
               >
@@ -138,10 +153,33 @@ export const MatchCard = ({
                 {isInitiator ? "Cancel Match" : "Decline"}
               </Button>
             )}
-            {match.status === "Completed" && match.score && (
-              <Badge variant="secondary">
-                Score: {match.score.join("-")}
-              </Badge>
+
+            {isInitiator && match.status === "Confirmed" && (
+              <RecordResultDialog
+                matchId={match._id}
+                onResultRecorded={onResultRecorded}
+              >
+                <Button
+                  variant="default"
+                  size="sm"
+                >
+                  Record Result
+                </Button>
+              </RecordResultDialog>
+            )}
+            {match.status === "Completed" && (
+              <div className="inline-flex items-center gap-2">
+                {match.score && (
+                  <Badge variant="secondary">
+                    Score: {match.score.join("-")}
+                  </Badge>
+                )}
+                {match.result && (
+                  <Badge variant={match.result === "Win" ? "default" : "destructive"}>
+                    {getResultDisplay(match, currentUserId)}
+                  </Badge>
+                )}
+              </div>
             )}
           </div>
         </div>

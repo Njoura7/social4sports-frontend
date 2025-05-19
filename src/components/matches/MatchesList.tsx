@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import{ MatchCard } from "./MatchCard"
+import { MatchCard } from "./MatchCard"
 import { Button } from "@/components/ui/button";
 import { Match } from "@/types/match";
 
@@ -22,6 +22,7 @@ export const MatchesList = ({
   onConfirm,
   onScheduleClick
 }: MatchesListProps) => {
+  console.log("MatchesList", matches);
   if (loading) {
     return (
       <div className="py-8 text-center text-muted-foreground">
@@ -35,8 +36,8 @@ export const MatchesList = ({
       <Card>
         <CardContent className="py-8 text-center">
           <p className="text-gray-600">No matches found</p>
-          <Button 
-            className="mt-4 bg-sport-blue hover:bg-sport-blue/90" 
+          <Button
+            className="mt-4 bg-sport-blue hover:bg-sport-blue/90"
             onClick={onScheduleClick}
           >
             Schedule a Match
@@ -56,6 +57,7 @@ export const MatchesList = ({
           onReschedule={onReschedule}
           onCancel={onCancel}
           onConfirm={onConfirm}
+          onResultRecorded={onConfirm}
         />
       ))}
     </div>

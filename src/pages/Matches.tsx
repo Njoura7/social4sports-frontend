@@ -23,32 +23,57 @@ export const Matches = () => {
   const [selectedSkill, setSelectedSkill] = useState("beginner");
   const [searching, setSearching] = useState(false);
   const [upcomingMatches, setUpcomingMatches] = useState<Match[]>([]);
-  const [loadingMatches, setLoadingMatches] = useState(false);
+  const [pastMatches, setPastMatches] = useState<Match[]>([]);
+  const [loadingMatches, setLoadingMatches] = useState({
+    upcoming: false,
+    past: false
+  });
   const { user: currentUser } = useAuth();
 
-  const fetchMatches = async () => {
-    setLoadingMatches(true);
+  const fetchUpcomingMatches = async () => {
+    setLoadingMatches(prev => ({ ...prev, upcoming: true }));
     try {
       const matches = await matchService.getUpcomingMatches();
       setUpcomingMatches(matches);
     } catch (error) {
-      toast.error("Failed to load matches");
+      toast.error("Failed to load upcoming matches");
       console.error(error);
     } finally {
-      setLoadingMatches(false);
+      setLoadingMatches(prev => ({ ...prev, upcoming: false }));
     }
   };
 
+  const fetchPastMatches = async () => {
+    setLoadingMatches(prev => ({ ...prev, past: true }));
+    try {
+      const matches = await matchService.getPastMatches();
+      setPastMatches(matches);
+    } catch (error) {
+      toast.error("Failed to load past matches");
+      console.error(error);
+    } finally {
+      setLoadingMatches(prev => ({ ...prev, past: false }));
+    }
+  };
+
+
+
   useEffect(() => {
-    fetchMatches();
+    fetchUpcomingMatches();
   }, []);
 
   useEffect(() => {
+    if (tab === "past" && pastMatches.length === 0) {
+      fetchPastMatches();
+    }
+  }, [tab]);
+
+  useEffect(() => {
     if (!showModal || !selectedSkill) return;
-    
+
     setSearching(true);
     const [lng, lat] = BACKUP_LOCATION.coordinates;
-    
+
     userService
       .searchPlayers({ skillLevel: selectedSkill, lat, lng, radius: 10000 })
       .then(setAllNearbyPlayers)
@@ -61,31 +86,56 @@ export const Matches = () => {
       await matchService.scheduleMatch(data);
       toast.success("Match scheduled successfully!");
       setShowModal(false);
-      fetchMatches();
+      fetchUpcomingMatches();
     } catch (error) {
       toast.error("Failed to schedule match");
       console.error(error);
     }
   };
 
+  const handleConfirmMatch = async (matchId: string) => {
+    try {
+      const currentMatch = upcomingMatches.find(m => m._id === matchId);
+      const updatedMatch = await matchService.confirmMatch(matchId);
+
+      // Merge with existing player data
+      const mergedMatch = {
+        ...updatedMatch,
+        initiator: currentMatch?.initiator || updatedMatch.initiator,
+        opponent: currentMatch?.opponent || updatedMatch.opponent
+      };
+
+      setUpcomingMatches(prev =>
+        prev.map(m => m._id === matchId ? mergedMatch : m)
+      );
+      toast.success('Match confirmed!');
+    } catch (error) {
+      console.error('Confirmation failed:', error);
+      toast.error(error.message);
+    }
+  };
+
+  const handleResultRecorded = async (matchId: string, updatedMatch?: Match) => {
+    if (updatedMatch) {
+      const currentMatch = upcomingMatches.find(m => m._id === matchId);
+      const mergedMatch = {
+        ...updatedMatch,
+        initiator: currentMatch?.initiator || updatedMatch.initiator,
+        opponent: currentMatch?.opponent || updatedMatch.opponent
+      };
+
+      setUpcomingMatches(prev => prev.filter(m => m._id !== matchId));
+      setPastMatches(prev => [...prev, mergedMatch]);
+    }
+    await Promise.all([fetchUpcomingMatches(), fetchPastMatches()]);
+  };
   const handleCancelMatch = async (matchId: string) => {
     try {
       await matchService.cancelMatch(matchId);
       toast.success("Match cancelled");
-      fetchMatches();
+      fetchUpcomingMatches();
     } catch (error) {
       toast.error("Failed to cancel match");
-      console.error(error);
-    }
-  };
-
-  const handleConfirmMatch = async (matchId: string) => {
-    try {
-      await matchService.confirmMatch(matchId);
-      toast.success("Match confirmed!");
-      fetchMatches();
-    } catch (error) {
-      toast.error("Failed to confirm match");
       console.error(error);
     }
   };
@@ -126,7 +176,7 @@ export const Matches = () => {
             <MatchesList
               matches={upcomingMatches}
               currentUserId={currentUser?._id}
-              loading={loadingMatches}
+              loading={loadingMatches.upcoming}
               onReschedule={() => toast.info("Reschedule feature coming soon")}
               onCancel={handleCancelMatch}
               onConfirm={handleConfirmMatch}
@@ -134,14 +184,14 @@ export const Matches = () => {
             />
           </TabsContent>
 
-          <TabsContent value="past">
+          <TabsContent value="past" className="space-y-4">
             <MatchesList
-              matches={[]}
+              matches={pastMatches}
               currentUserId={currentUser?._id}
-              loading={false}
+              loading={loadingMatches.past}
               onReschedule={() => toast.info("Reschedule feature coming soon")}
               onCancel={handleCancelMatch}
-              onConfirm={handleConfirmMatch}
+              onConfirm={handleResultRecorded} // Update this
               onScheduleClick={() => setShowModal(true)}
             />
           </TabsContent>

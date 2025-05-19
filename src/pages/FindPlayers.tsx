@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
@@ -60,6 +59,13 @@ const FindPlayers = () => {
     },
   ];
 
+  // Filter players based on selected skill level
+  const filteredPlayers = skillLevel
+    ? players.filter(player => 
+        player.skillLevel.toLowerCase() === skillLevel.toLowerCase()
+      )
+    : players;
+
   return (
     <PageLayout>
       <div className="max-w-4xl mx-auto animate-fade-in">
@@ -67,7 +73,6 @@ const FindPlayers = () => {
         
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          
             <Select value={skillLevel} onValueChange={setSkillLevel}>
               <SelectTrigger>
                 <SelectValue placeholder="Skill Level" />
@@ -89,12 +94,11 @@ const FindPlayers = () => {
                 <SelectItem value="25">Within 25 miles</SelectItem>
               </SelectContent>
             </Select>
-          
           </div>
         </div>
 
         <div className="space-y-4">
-          {players.map((player) => (
+          {filteredPlayers.map((player) => (
             <Card key={player.id} className="sport-card">
               <CardContent className="p-4 flex items-center">
                 <Avatar className="h-12 w-12">
