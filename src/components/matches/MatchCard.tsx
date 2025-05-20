@@ -36,6 +36,7 @@ export const MatchCard = ({
   onConfirm,
   onResultRecorded
 }: MatchCardProps) => {
+  console.log("MATCH",match)
   const isOpponent = currentUserId === match.opponent._id;
   const isInitiator = currentUserId === match.initiator._id;
   const showConfirmButton = isOpponent && match.status === "AwaitingConfirmation";
@@ -66,7 +67,7 @@ export const MatchCard = ({
             <div className="flex -space-x-2">
               <Avatar className="h-10 w-10 border-2 border-white">
                 {match.initiator.avatar && (
-                  <AvatarImage src={`/avatars/${match.initiator.avatar}`} />
+                  <AvatarImage src={`${match.initiator.avatar}`} />
                 )}
                 <AvatarFallback>
                   {getInitials(match.initiator.fullName || match.initiator.email)}
@@ -74,7 +75,7 @@ export const MatchCard = ({
               </Avatar>
               <Avatar className="h-10 w-10 border-2 border-white">
                 {match.opponent.avatar && (
-                  <AvatarImage src={`/avatars/${match.opponent.avatar}`} />
+                  <AvatarImage src={`${match.opponent.avatar}`} />
                 )}
                 <AvatarFallback>
                   {getInitials(match.opponent.fullName || match.opponent.email)}
@@ -170,9 +171,9 @@ export const MatchCard = ({
             {match.status === "Completed" && (
               <div className="inline-flex items-center gap-2">
                 {match.score && (
-                  <Badge variant="secondary">
-                    Score: {match.score.join("-")}
-                  </Badge>
+              <Badge variant="secondary">
+              Score: {match.score.join(' / ')}
+            </Badge>
                 )}
                 {match.result && (
                   <Badge variant={match.result === "Win" ? "default" : "destructive"}>

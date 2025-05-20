@@ -121,15 +121,15 @@ const FindPlayers = () => {
                   <div className="ml-4 flex-grow">
                     <div className="flex justify-between items-start">
                       <h3 className="font-medium">{player.fullName}</h3>
-                      <Badge variant={player.skillLevel === "pro" ? "default" :
+                     
+                    </div>
+               
+                     <Badge className="mt-4" variant={player.skillLevel === "pro" ? "default" :
                                  player.skillLevel === "intermediate" ? "secondary" :
                                  "outline"}>
                         {player.skillLevel}
                       </Badge>
-                    </div>
-                    <div className="text-sm text-gray-600 mt-1">
-                      <p>Skill Level: {player.skillLevel}</p>
-                    </div>
+
                   </div>
                   <Button className="ml-4 bg-sport-blue hover:bg-sport-blue/90">Connect</Button>
                 </CardContent>
