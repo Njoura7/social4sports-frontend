@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Bell, MessageSquare } from "lucide-react";
+import { Bell, MessageSquare, Users, Search } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -23,17 +23,19 @@ const Navbar = () => {
         </Link>
       </div>
 
-      <div className="hidden md:flex items-center space-x-6">
+      <div className="hidden md:flex items-center space-x-6 gap-10">
         {isAuthenticated ? (
           <>
-            <Link to="/find" className="text-gray-700 hover:text-sport-blue transition-colors">
+            <Link to="/find" className="flex gap-2 text-gray-700 hover:text-sport-blue transition-colors">
+              <Search className="h-5 w-5 text-gray-700" />
               Find Players
             </Link>
             <Link to="/matches" className="text-gray-700 hover:text-sport-blue transition-colors">
               Matches
             </Link>
-            <Link to="/leaderboard" className="text-gray-700 hover:text-sport-blue transition-colors">
-              Leaderboard
+            <Link to="/friends" className="flex gap-2 text-gray-700 hover:text-sport-blue transition-colors">
+              <Users className="h-5 w-5 text-gray-700" />
+              Friend Management
             </Link>
           </>
         ) : null}
@@ -56,7 +58,7 @@ const Navbar = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.avatar  || "/avatar-placeholder.png"} alt="User avatar" />
+                    <AvatarImage src={user.avatar || "/avatar-placeholder.png"} alt="User avatar" />
                     <AvatarFallback>
                       {user.fullName ? user.fullName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : "U"}
                     </AvatarFallback>

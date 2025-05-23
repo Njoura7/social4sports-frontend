@@ -5,7 +5,7 @@ export interface User {
   _id: string
   fullName: string
   email: string
-  avatar?: string // avatar image filename or URL
+  avatar?: string
   location?: {
     type: 'Point'
     coordinates: [number, number]
@@ -45,15 +45,20 @@ export const userService = {
   },
 
   // User profile
-  getCurrentUser: () => api.get<User>('/users/profile'),
+  getCurrentUser: () => api.get<User>('/auth/me'),
 
   getUserById: (userId: string) => api.get<User>(`/users/${userId}`),
 
   updateProfile: (data: Partial<User>) =>
     api.put<User>('/users/profile', data),
 
-  getUserByFullName: (fullName: string) => api.get<User[]>(`/users?fullName=${encodeURIComponent(fullName)}`),
+  getUserByFullName: (fullName: string) =>
+    api.get<User[]>(`/users?fullName=${encodeURIComponent(fullName)}`),
 
-  searchPlayers: (params: { skillLevel?: string; lat: number; lng: number; radius?: number }) =>
-    api.get<User[]>("/players/search", { params }),
+  searchPlayers: (params: {
+    skillLevel?: string
+    lat: number
+    lng: number
+    radius?: number
+  }) => api.get<User[]>('/players/search', { params }),
 }

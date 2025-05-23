@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { User, userService, RegisterData } from "@/services/userService";
 import { AUTH_CONFIG } from "@/config/env";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 const TOKEN_NAME = AUTH_CONFIG.TOKEN_NAME;
 

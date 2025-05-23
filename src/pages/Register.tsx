@@ -31,7 +31,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import type { PointLocation } from "@/hooks/useGeolocation";
 
-const avatars = ["1.png", "2.png", "3.png", "4.png", "5.png"];
+const avatars = ["1.png", "2.png", "3.png", "4.png", "5.png","6.png","7.png","8.png","9.png"];
 
 export default function Register() {
   const { location, error: locationError, loading: locationLoading, getLocation } = useGeolocation();
@@ -196,7 +196,7 @@ export default function Register() {
                     <Button variant="outline" className="w-full">
                       <div className="flex items-center gap-2">
                         <Avatar>
-                          <AvatarImage src={`/avatars/${avatar}`} />
+                          <AvatarImage src={`${avatar}`} />
                           <AvatarFallback>AV</AvatarFallback>
                         </Avatar>
                         <span>{avatar}</span>

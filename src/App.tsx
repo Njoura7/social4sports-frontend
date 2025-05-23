@@ -16,6 +16,7 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
+import FriendManagement from "./pages/FriendManagement";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,11 @@ const App = () => (
             <Route path="/profile" element={
               <RequireAuth>
                 <Profile />
+              </RequireAuth>
+            } />
+            <Route path="/friends" element={
+              <RequireAuth>
+                <FriendManagement />
               </RequireAuth>
             } />
             <Route path="/users/:id" element={

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { toast } from 'sonner'
 import { API_CONFIG, AUTH_CONFIG } from '@/config/env'
 import axiosInstance from '@/api/axios'
