@@ -1,72 +1,52 @@
 // src/components/Profile.tsx
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useUserStore } from '@/store/userStore';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserStore } from '@/store/userStore';
 import { ConnectionButton } from '@/components/friends/ConnectionButton';
 import PageLayout from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Edit, MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { User, userService } from '@/services/userService';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Edit, MapPin } from 'lucide-react';
+import { userService, User } from '@/services/userService';
 
 const Profile = () => {
   const { id } = useParams();
-  const { user: authUser, refreshUserById } = useAuth();
-  const {
-    stats,
-    loading,
-    fetchUserStats,
-
-  } = useUserStore();
-
-
-  // Determine which user to display
+  const { user: authUser } = useAuth();
   const isOwnProfile = !id || id === authUser?._id;
-  const [viewedUser, setViewedUser] = useState<User | null>(null); // Add local state for viewed user
 
+  const { stats, loading, fetchUserStats } = useUserStore();
+  const [viewedUser, setViewedUser] = useState<User | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         if (id) {
-          // For other users' profiles
-          const userData = await userService.getUserById(id); // Directly fetch user data
+          const userData = await userService.getUserById(id);
           setViewedUser(userData);
-          await Promise.all([
-            fetchUserStats(id),
-          ]);
+          await fetchUserStats(id);
         } else if (authUser?._id) {
-          // For own profile
-          await Promise.all([
-            fetchUserStats(authUser._id),
-          ]);
+          await fetchUserStats(authUser._id);
         }
-      } catch (error) {
-        console.error("Failed to load profile data:", error);
+      } catch (err) {
+        console.error("Failed to load profile:", err);
       }
     };
-
     loadData();
-  }, [id, authUser?._id, fetchUserStats]);
+  }, [id, authUser?._id]);
 
-  const profileUser = id ? viewedUser : authUser; // Use viewedUser for other profiles
-  console.log("Profile User:", profileUser);
+  const profileUser = id ? viewedUser : authUser;
   if (!profileUser) {
-    return (
-      <PageLayout>
-        <div className="max-w-4xl mx-auto p-4">Loading profile...</div>
-      </PageLayout>
-    );
+    return <PageLayout><div className="max-w-4xl mx-auto p-4">Loading profile...</div></PageLayout>;
   }
 
-  const locationString = profileUser.location
+  const location = profileUser.location
     ? `(${profileUser.location.coordinates[1]}, ${profileUser.location.coordinates[0]})`
-    : "Location not set";
+    : 'Location not set';
 
   return (
     <PageLayout>
@@ -79,32 +59,26 @@ const Profile = () => {
                   <AvatarImage src={profileUser.avatar} alt={profileUser.fullName} />
                   <AvatarFallback>{profileUser.fullName?.charAt(0)}</AvatarFallback>
                 </Avatar>
-                {isOwnProfile && (
-                  <Button variant="ghost" size="sm" className="mt-2">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit
+                {isOwnProfile ? (
+                  <Button variant="ghost" size="sm" className="mt-6">
+                    <Edit className="h-4 w-4 mr-2" /> Edit
                   </Button>
+                ) : (
+                  <ConnectionButton targetUserId={profileUser._id} />
                 )}
               </div>
               <div className="flex-grow">
-                <div className="flex flex-col md:flex-row md:justify-between md:items-start">
+                <div className="flex justify-between items-start">
                   <div>
                     <h1 className="text-2xl font-bold">{profileUser.fullName}</h1>
                     <p className="text-muted-foreground">{profileUser.email}</p>
                   </div>
-                  {/* {!isOwnProfile && profileUser._id && (
-                    <div className="mt-4 md:mt-0">
-                      <ConnectionButton targetUserId={profileUser._id} />
-                    </div>
-                  )} */}
                 </div>
-                <div className="flex flex-wrap items-center gap-2 mt-3">
-                  <Badge variant="secondary">
-                    {profileUser.skillLevel || 'Beginner'}
-                  </Badge>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <Badge variant="secondary">{profileUser.skillLevel || 'Beginner'}</Badge>
                   <div className="flex items-center text-muted-foreground text-sm">
                     <MapPin className="h-4 w-4 mr-1" />
-                    <span>{locationString}</span>
+                    <span>{location}</span>
                   </div>
                 </div>
               </div>
@@ -112,7 +86,7 @@ const Profile = () => {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="stats" className="w-full">
+        <Tabs defaultValue="stats">
           <TabsList className="w-full mb-4">
             <TabsTrigger value="stats" className="flex-1">Stats</TabsTrigger>
             <TabsTrigger value="matches" className="flex-1">Matches</TabsTrigger>
@@ -172,18 +146,11 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="matches">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Recent Matches</CardTitle>
-              </CardHeader>
-              <CardContent>
-                to be used from different component
-              </CardContent>
-            </Card>
+            <p>Match history coming soon...</p>
           </TabsContent>
         </Tabs>
       </div>
-    </PageLayout>
+    </PageLayout >
   );
 };
 

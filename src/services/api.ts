@@ -40,14 +40,15 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      const message = error.response.data?.message || 'An error occurred'
-      toast.error(message)
+      console.log('API ERROR', error.response.data.error.message)
+      const message =
+        error.response.data?.error.message || 'An error occurred'
+
       throw new ApiError(message, error.response.status)
     } else if (error.request) {
       toast.error('Network error: Please check your connection')
       throw new ApiError('Network error', 0)
     } else {
-      toast.error(error.message)
       throw new ApiError(error.message, 0)
     }
   }

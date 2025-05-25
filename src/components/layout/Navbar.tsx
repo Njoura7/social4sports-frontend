@@ -14,6 +14,9 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  console.log("Navbar User:", user);
+  console.log("Navbar Authenticated:", isAuthenticated);
+  console.log("Navbar Logout Function:", logout);
 
   return (
     <nav className="bg-white border-b border-gray-200 py-4 px-6 flex justify-between items-center sticky top-0 z-10">

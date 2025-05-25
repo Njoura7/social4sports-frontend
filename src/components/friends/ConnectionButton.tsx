@@ -1,9 +1,11 @@
-// src/components/ConnectionButton.tsx
+// src/components/friends/ConnectionButton.tsx
 import { useAuth } from '@/contexts/AuthContext';
 import { useFriendStore } from '@/store/friendStore';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
+
+type ConnectionStatus = 'none' | 'pending-sent' | 'pending-received' | 'friends';
 
 interface ConnectionButtonProps {
     targetUserId: string;
@@ -14,7 +16,7 @@ interface ConnectionButtonProps {
 
 export const ConnectionButton = ({
     targetUserId,
-    className,
+    className = '',
     size = 'default',
     variant = 'default',
 }: ConnectionButtonProps) => {
@@ -29,53 +31,37 @@ export const ConnectionButton = ({
         fetchSentRequests,
         fetchReceivedRequests,
     } = useFriendStore();
-    const [loading, setLoading] = useState(false);
+
     const [status, setStatus] = useState<ConnectionStatus>('none');
+    const [loading, setLoading] = useState(false);
 
-    // Determine the current connection status
-    useEffect(() => {
+    const updateConnectionStatus = async () => {
         if (!user?._id) return;
+        setLoading(true);
+        try {
+            await Promise.all([
+                fetchFriends(user._id),
+                fetchSentRequests(user._id),
+                fetchReceivedRequests(user._id),
+            ]);
 
-        const checkStatus = async () => {
-            setLoading(true);
-            try {
-                // Ensure we have fresh data
-                await Promise.all([
-                    fetchFriends(user._id),
-                    fetchSentRequests(user._id),
-                    fetchReceivedRequests(user._id),
-                ]);
+            const isFriend = friends.some(friend => friend._id === targetUserId);
+            const sentRequest = sentRequests.some(req => req.recipient._id === targetUserId);
+            const receivedRequest = receivedRequests.some(req => req.requester._id === targetUserId);
 
-                // Check if already friends
-                const isFriend = friends.some(friend => friend._id === targetUserId);
-                if (isFriend) {
-                    setStatus('friends');
-                    return;
-                }
+            if (isFriend) setStatus('friends');
+            else if (sentRequest) setStatus('pending-sent');
+            else if (receivedRequest) setStatus('pending-received');
+            else setStatus('none');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-                // Check if request was sent
-                const sentRequest = sentRequests.find(req => req.recipient._id === targetUserId);
-                if (sentRequest) {
-                    setStatus('pending-sent');
-                    return;
-                }
-
-                // Check if request was received
-                const receivedRequest = receivedRequests.find(req => req.requester._id === targetUserId);
-                if (receivedRequest) {
-                    setStatus('pending-received');
-                    return;
-                }
-
-                // No connection exists
-                setStatus('none');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        checkStatus();
-    }, [user?._id, targetUserId, friends, sentRequests, receivedRequests]);
+    useEffect(() => {
+        const timer = setTimeout(updateConnectionStatus, 100);
+        return () => clearTimeout(timer);
+    }, [user?._id, targetUserId]);
 
     const handleSendRequest = async () => {
         if (!user?._id) return;
@@ -84,126 +70,61 @@ export const ConnectionButton = ({
             await sendRequest(user._id, targetUserId);
             setStatus('pending-sent');
             toast.success('Connection request sent');
-        } catch (error) {
+        } catch {
             toast.error('Failed to send connection request');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleAcceptRequest = async () => {
+    const handleRespondRequest = async (accept: boolean) => {
         if (!user?._id) return;
         setLoading(true);
         try {
             const request = receivedRequests.find(req => req.requester._id === targetUserId);
             if (!request) throw new Error('Request not found');
 
-            await respondRequest(request._id, user._id, true);
-            setStatus('friends');
-            toast.success('Connection accepted');
-        } catch (error) {
-            toast.error('Failed to accept connection');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDeclineRequest = async () => {
-        if (!user?._id) return;
-        setLoading(true);
-        try {
-            const request = receivedRequests.find(req => req.requester._id === targetUserId);
-            if (!request) throw new Error('Request not found');
-
-            await respondRequest(request._id, user._id, false);
-            setStatus('none');
-            toast.success('Connection declined');
-        } catch (error) {
-            toast.error('Failed to decline connection');
+            await respondRequest(request._id, user._id, accept);
+            setStatus(accept ? 'friends' : 'none');
+            toast.success(accept ? 'Connection accepted' : 'Connection declined');
+        } catch {
+            toast.error(`Failed to ${accept ? 'accept' : 'decline'} connection`);
         } finally {
             setLoading(false);
         }
     };
 
     if (loading && status === 'none') {
-        return (
-            <Button
-                variant={variant}
-                size={size}
-                className={className}
-                disabled
-            >
-                Loading...
+        return <Button variant={variant} size={size} className={className} disabled>Loading...</Button>;
+    }
+
+    const buttonMap = {
+        'none': (
+            <Button variant={variant} size={size} className={className} onClick={handleSendRequest} disabled={loading}>
+                {loading ? 'Sending...' : 'Connect'}
             </Button>
-        );
-    }
-
-    switch (status) {
-        case 'none':
-            return (
-                <Button
-                    variant={variant}
-                    size={size}
-                    className={className}
-                    onClick={handleSendRequest}
-                    disabled={loading}
-                >
-                    {loading ? 'Sending...' : 'Connect'}
+        ),
+        'pending-sent': (
+            <Button variant="outline" size={size} className={className} disabled>
+                Request Sent
+            </Button>
+        ),
+        'pending-received': (
+            <div className={`flex gap-2 ${className}`}>
+                <Button size={size} onClick={() => handleRespondRequest(true)} disabled={loading}>
+                    {loading ? 'Accepting...' : 'Accept'}
                 </Button>
-            );
-
-        case 'pending-sent':
-            return (
-                <Button
-                    variant="outline"
-                    size={size}
-                    className={className}
-                    disabled
-                >
-                    Request Sent
+                <Button variant="outline" size={size} onClick={() => handleRespondRequest(false)} disabled={loading}>
+                    Decline
                 </Button>
-            );
+            </div>
+        ),
+        'friends': (
+            <Button variant="secondary" size={size} className={className} disabled>
+                Friends
+            </Button>
+        ),
+    };
 
-        case 'pending-received':
-            return (
-                <div className={`flex gap-2 ${className}`}>
-                    <Button
-                        size={size}
-                        onClick={handleAcceptRequest}
-                        disabled={loading}
-                    >
-                        {loading ? 'Accepting...' : 'Accept'}
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size={size}
-                        onClick={handleDeclineRequest}
-                        disabled={loading}
-                    >
-                        Decline
-                    </Button>
-                </div>
-            );
-
-        case 'friends':
-            return (
-                <Button
-                    variant="secondary"
-                    size={size}
-                    className={className}
-                    disabled
-                >
-                    Friends
-                </Button>
-            );
-
-        default:
-            return null;
-    }
+    return buttonMap[status] ?? null;
 };
-
-type ConnectionStatus =
-    | 'none'
-    | 'pending-sent'
-    | 'pending-received'
-    | 'friends';

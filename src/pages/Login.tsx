@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
@@ -49,7 +50,7 @@ const Login = () => {
       toast.error("Login failed", {
         description: error?.response?.data?.message || error?.message || "Invalid credentials.",
       });
-      console.error("❌ Login error:", error);
+      console.table("❌ Login error:", error);
     } finally {
       setIsLoading(false);
       if (loadingToastId) toast.dismiss(loadingToastId);

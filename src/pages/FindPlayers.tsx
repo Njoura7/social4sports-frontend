@@ -2,6 +2,7 @@
 import PageLayout from "@/components/layout/PageLayout";
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -133,31 +134,33 @@ const FindPlayers = () => {
           {foundPlayers.length > 0 ? (
             foundPlayers.map((player) => (
               <Card key={player._id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4 flex items-center">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={player.avatar} alt={player.fullName} />
-                    <AvatarFallback>
-                      {player.fullName.charAt(0)}
-                      {player.fullName.split(" ")[1]?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="ml-4 flex-grow">
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-medium">{player.fullName}</h3>
+                <Link to={`/users/${player._id}`}>
+                  <CardContent className="p-4 flex items-center">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={player.avatar} alt={player.fullName} />
+                      <AvatarFallback>
+                        {player.fullName.charAt(0)}
+                        {player.fullName.split(" ")[1]?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="ml-4 flex-grow">
+                      <div className="flex justify-between items-start">
+                        <h3 className="font-medium">{player.fullName}</h3>
+                      </div>
+                      <Badge
+                        className="mt-2"
+                        variant={
+                          player.skillLevel === "pro" ? "default" :
+                            player.skillLevel === "intermediate" ? "secondary" :
+                              "outline"
+                        }
+                      >
+                        {player.skillLevel}
+                      </Badge>
                     </div>
-                    <Badge
-                      className="mt-2"
-                      variant={
-                        player.skillLevel === "pro" ? "default" :
-                          player.skillLevel === "intermediate" ? "secondary" :
-                            "outline"
-                      }
-                    >
-                      {player.skillLevel}
-                    </Badge>
-                  </div>
 
-                </CardContent>
+                  </CardContent>
+                </Link>
               </Card>
             ))
           ) : (
