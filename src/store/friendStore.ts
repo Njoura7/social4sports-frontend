@@ -19,7 +19,7 @@ interface FriendState {
   ) => Promise<void>
 }
 
-export const useFriendStore = create<FriendState>((set) => ({
+export const useFriendStore = create<FriendState>((set, get) => ({
   receivedRequests: [],
   sentRequests: [],
   friends: [],
@@ -31,8 +31,10 @@ export const useFriendStore = create<FriendState>((set) => ({
       const requests = await api.get<FriendRequest[]>(
         '/friends/requests/received'
       )
+      console.log('Received requests fetched:', requests)
       set({ receivedRequests: requests, loading: false })
     } catch (error) {
+      console.error('Failed to fetch received requests:', error)
       set({ loading: false })
       throw error
     }
@@ -44,19 +46,30 @@ export const useFriendStore = create<FriendState>((set) => ({
       const requests = await api.get<FriendRequest[]>(
         '/friends/requests/sent'
       )
+      console.log('Sent requests fetched:', requests)
       set({ sentRequests: requests, loading: false })
     } catch (error) {
+      console.error('Failed to fetch sent requests:', error)
       set({ loading: false })
       throw error
     }
   },
 
   fetchFriends: async (userId: string) => {
+    // Don't fetch if already loading
+    if (get().loading) {
+      console.log('Already loading friends, skipping...')
+      return
+    }
+
     set({ loading: true })
     try {
+      console.log('Fetching friends from API...')
       const friends = await api.get<Friend[]>('/friends')
+      console.log('Friends fetched from API:', friends)
       set({ friends, loading: false })
     } catch (error) {
+      console.error('Failed to fetch friends:', error)
       set({ loading: false })
       throw error
     }
@@ -74,6 +87,7 @@ export const useFriendStore = create<FriendState>((set) => ({
       }))
       toast.success('Friend request sent successfully')
     } catch (error) {
+      console.error('Failed to send friend request:', error)
       set({ loading: false })
       throw error
     }
@@ -126,6 +140,7 @@ export const useFriendStore = create<FriendState>((set) => ({
         accept ? 'Friend request accepted' : 'Friend request rejected'
       )
     } catch (error) {
+      console.error('Failed to respond to friend request:', error)
       set({ loading: false })
       throw error
     }

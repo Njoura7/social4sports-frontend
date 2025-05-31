@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import RequireAuth from "@/components/auth/RequireAuth";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { jwtDecode } from "jwt-decode";
 
 
 // Page imports

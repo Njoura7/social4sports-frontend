@@ -1,7 +1,7 @@
 // src/components/Profile.tsx
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { useUserStore } from '@/store/userStore';
 import { ConnectionButton } from '@/components/friends/ConnectionButton';
 import PageLayout from '@/components/layout/PageLayout';

@@ -1,5 +1,4 @@
-// src/components/friends/ConnectionButton.tsx
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { useFriendStore } from '@/store/friendStore';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';

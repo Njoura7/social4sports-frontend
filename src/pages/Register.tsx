@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
@@ -27,11 +28,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import type { PointLocation } from "@/hooks/useGeolocation";
 
-const avatars = ["1.png", "2.png", "3.png", "4.png", "5.png","6.png","7.png","8.png","9.png"];
+const avatars = ["1.png", "2.png", "3.png", "4.png", "5.png", "6.png", "7.png", "8.png", "9.png"];
 
 export default function Register() {
   const { location, error: locationError, loading: locationLoading, getLocation } = useGeolocation();

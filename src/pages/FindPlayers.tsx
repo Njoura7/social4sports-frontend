@@ -15,11 +15,9 @@ import { Badge } from "@/components/ui/badge";
 import { playerService } from "@/services/playerService";
 import { User } from "@/services/userService";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
 
 
 const FindPlayers = () => {
-  const { user, isAuthenticated } = useAuth();
   const [skillLevel, setSkillLevel] = useState("any");
   const [radius, setRadius] = useState("10000");
   const [foundPlayers, setFoundPlayers] = useState<User[]>([]);

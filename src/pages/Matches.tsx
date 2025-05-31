@@ -6,7 +6,7 @@ import { Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { userService, User } from "@/services/userService";
 import { matchService } from "@/services/matchService";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { ScheduleMatchDialog } from "@/components/matches/ScheduleMatchDialog";
 import { MatchesList } from "@/components/matches/MatchesList";
 import { Match } from "@/types/match";

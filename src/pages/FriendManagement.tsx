@@ -8,7 +8,7 @@ import {
 import { FriendList } from '@/components/friends/FriendList';
 import { ReceivedRequestsList } from '@/components/friends/ReceivedRequestsList';
 import { SentRequestsList } from '@/components/friends/SentRequestsList';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 
 import { useFriendStore } from '@/store/friendStore';
 import { useEffect } from 'react';
