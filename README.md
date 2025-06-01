@@ -25,19 +25,29 @@ env
 VITE_API_SOCKET_PATH=http://localhost:3000
 ```
 Run Development Server
+
 ```bash
 npm run dev  
 Access at: http://localhost:8080
 ```
 
 ### ✨ Key Features
-Player Discovery
-📍 Find nearby players by skill level/availability
-Discovery
+- Authentication with jwt
+![App Screenshot](public/auth.png)
 
-Real-Time Messaging
+- Profile stats
+![App Screenshot](public/profile.png)
+
+- Player Discovery
+📍 Find nearby players by skill level/availability
+![App Screenshot](public/find-players.png)
+
+- Real-Time Messaging
 💬 Chat and schedule matches instantly
-Messaging
+![App Screenshot](public/real-time-chat.png)
+
+- notification system
+  ![App Screenshot](public/notifications.png)
 
 Match Management
 📅 Schedule games & track history
