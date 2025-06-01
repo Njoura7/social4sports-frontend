@@ -31,42 +31,47 @@ npm run dev
 Access at: http://localhost:8080
 ```
 
-### ✨ Key Features
-- Authentication with jwt
-![App Screenshot](public/auth.png)
+## ✨ Key Features
+
+### 🔐 Authentication  
+- Secure JWT login system  
+<img src="public/auth.png" width="400" alt="Authentication Screen">
 
 ---
 
-- Profile stats
-![App Screenshot](public/profile.png)
+### 📊 Player Profiles  
+- Detailed stats and match history  
+<img src="public/profile.png" width="400" alt="Profile Screen">
 
 ---
 
-- Player Discovery
-📍 Find nearby players by skill level/availability
-![App Screenshot](public/find-players.png)
+### 🔍 Player Discovery  
+📍 Find nearby players by skill level/availability  
+<img src="public/find-players.png" width="400" alt="Player Discovery Screen">
 
 ---
 
-- Real-Time Messaging
-💬 Chat and schedule matches instantly
-![App Screenshot](public/real-time-chat.png)
+### 💬 Real-Time Messaging  
+- Instant chat with opponents  
+- Schedule matches directly  
+<img src="public/real-time-chat.png" width="400" alt="Chat Screen">
 
 ---
 
-- notification system
-  ![App Screenshot](public/notifications.png)
+### 🔔 Notification System  
+- Get alerts for new messages and match updates  
+<img src="public/notifications.png" width="400" alt="Notifications Screen">
 
 ---
 
-- Match Management
-📅 Schedule games & track history
-📊 View performance analytics
-![App Screenshot](public/matches.png)
+### 🏓 Match Management  
+📅 Schedule games & track history  
+📊 Performance analytics dashboard  
 
----
-
-![App Screenshot](public/schedule-match.png)
+<div style="display: flex; gap: 20px; margin-top: 15px;">
+  <img src="public/matches.png" width="350" alt="Matches Screen">
+  <img src="public/schedule-match.png" width="350" alt="Schedule Screen">
+</div>
 
 🛠️ Technology Stack
 Area	Technologies
