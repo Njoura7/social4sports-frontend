@@ -1,122 +1,69 @@
+# Social4Sports: Connect Through Sports  
 
-# Social4Sports: Connect Through Sports
+🏓 Modern platform connecting ping pong players to find matches, track progress, and chat in real-time.  
 
-## 🏓 Project Overview
+![App Screenshot](public/app-screenshot.png)  
 
-Social4Sports is a modern, interactive platform designed to connect sports enthusiasts, starting with ping pong players. Our application allows users to find nearby players, schedule matches, communicate in real-time, and track their progress—all in one seamless experience.
+## 🚀 Quick Start  
 
-This project was developed as part of [University Name]'s [Course Name] by [Your Team Name].
+### Prerequisites  
+- Node.js (v16+)  
+- Running backend API (default: `http://localhost:8000`)  
 
-![Social4Sports Screenshot](public/app-screenshot.png)
-
-## 🚀 Key Features
-
-- **User Authentication & Profile Management**
-  - Personalized player profiles with skill levels, play styles, and availability
-  - Comprehensive match history and performance statistics
-
-- **Player Discovery**
-  - Find players based on proximity, skill level, and availability
-  - Smart filtering to match with compatible opponents
-
-- **Real-time Messaging**
-  - Direct communication with connected players
-  - Schedule and coordinate matches easily
-
-- **Match Management**
-  - Create and track scheduled matches
-  - Record match results and maintain history
-
-## 🛠️ Tech Stack
-
-- **Frontend**: React, TypeScript, Vite
-- **UI Components**: Tailwind CSS, ShadCN UI
-- **State Management**: React Context API, TanStack Query
-- **Routing**: React Router
-- **Backend**: Node.js API (separate repository)
-- **Additional Tools**:
-  - ESLint & Prettier for code quality
-  - React Hook Form for form validation
-  - Lucide React for iconography
-  - Sonner for toast notifications
-
-## 🏁 Getting Started
-
-### Prerequisites
-
-- Node.js (v16 or newer)
-- npm or yarn package manager
-- Backend API running at http://localhost:8000
-
-### Installation
-
+### Installation  
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/social4sports.git
-
-# Navigate to the project directory
-cd social4sports
-
-# Install dependencies
+git clone https://github.com/yourusername/social4sports.git  
+cd social4sports  
 npm install
-# or
-yarn
-
-# Start the development server
-npm run dev
-# or
-yarn dev
 ```
 
-The application will be available at [http://localhost:8080](http://localhost:8080).
+Environment Setup
+Create .env file in root directory:
 
-### Connecting to Backend
-
-Social4Sports is designed to work with a Node.js backend API running at `http://localhost:8000`. Make sure your backend server is running before using features that require API access.
-
-## 📝 API Integration
-
-The frontend communicates with the backend through a structured API service layer:
-
-- Authentication (login, registration, profile management)
-- Player discovery and connections
-- Match scheduling and result tracking
-- Messaging between players
-
-## 📊 Project Structure
-
+env
+```VITE_API_URL=http://localhost:8000  
+VITE_API_SOCKET_PATH=http://localhost:3000
 ```
-src/
-├── components/         # UI components
-│   ├── layout/         # Layout components
-│   └── ui/             # Shadcn UI components
-├── contexts/           # React Context providers
-├── hooks/              # Custom React hooks
-├── lib/                # Utility functions
-├── pages/              # Page components
-├── services/           # API services
-└── ...
+Run Development Server
+```bash
+npm run dev  
+Access at: http://localhost:8080
 ```
 
-## 🔮 Future Enhancements
+### ✨ Key Features
+Player Discovery
+📍 Find nearby players by skill level/availability
+Discovery
 
-- Expansion to additional sports beyond ping pong
-- Tournament organization features
-- Enhanced player matching algorithm
-- Mobile application development
-- Community forums and group events
+Real-Time Messaging
+💬 Chat and schedule matches instantly
+Messaging
 
-## 👥 Team
+Match Management
+📅 Schedule games & track history
+📊 View performance analytics
 
-- [Your Name] - Frontend Developer
-- [Team Member] - Backend Developer
-- [Team Member] - UI/UX Designer
-- [Team Member] - Project Manager
+🛠️ Technology Stack
+Area	Technologies
+- Frontend	React, TypeScript, Vite
+- Styling	Tailwind CSS, ShadCN UI
+- State	Context API, Zustand, axios
+- Backend	Node.js API (separate repo)
 
-## 📄 License
+### 🌟 Future Roadmap
+- 🎾 Multi-sport expansion
 
-[Specify your license here]
+- 🏆 Tournament mode
 
----
+- 📱 Mobile app development
 
-Developed with ❤️ by [Your Team Name]
+- 🤖 Smart matchmaking algorithm
+
+### 👥 Team
+[Your Name] - Role
+
+[Teammate] - Role
+
+
+
+Developed with ❤️ by [Team Name] @ [University]
