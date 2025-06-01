@@ -3,10 +3,13 @@ import { useEffect, useRef, useCallback, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { useAuth } from '@/hooks/useAuth'
 import useChatStore from '@/store/chatStore'
+import { useNotificationStore } from '@/store/notificationStore'
+import { Notification } from '@/types/notification'
 
 const useSocket = () => {
   const { user, token } = useAuth()
   const { addMessage, setOnlineUsers, setTyping } = useChatStore()
+  const { addNotification } = useNotificationStore()
   const socketRef = useRef<Socket | null>(null)
   const [isConnected, setIsConnected] = useState(false)
 
@@ -26,7 +29,7 @@ const useSocket = () => {
     console.log('Attempting to connect to socket...')
 
     const socketUrl =
-      import.meta.env.VITE_API_URL || 'http://localhost:3000'
+      import.meta.env.VITE_API_SOCKET_PATH || 'http://localhost:3000'
 
     try {
       // Try connecting to the /chat namespace
@@ -58,6 +61,12 @@ const useSocket = () => {
         console.error('🔴 Socket connection error:', error)
         setIsConnected(false)
 
+        // Add notification listener
+        socket.on('notification', (notification: Notification) => {
+          console.log('🔔 New notification:', notification)
+          addNotification(notification)
+        })
+
         // If /chat namespace fails, try default namespace
         console.log('Trying default namespace...')
         if (socketRef.current) {
@@ -83,6 +92,14 @@ const useSocket = () => {
   }, [user?._id, token])
 
   const attachEventListeners = (socket: Socket) => {
+    // Remove existing listeners to avoid duplicates
+    socket.off('connect')
+    socket.off('disconnect')
+    socket.off('new_message')
+    // socket.off('message')
+    socket.off('typing')
+    socket.off('stop_typing')
+
     socket.on('connect', () => {
       console.log('✅ Socket connected successfully')
       setIsConnected(true)
@@ -93,18 +110,11 @@ const useSocket = () => {
       setIsConnected(false)
     })
 
-    // Listen for different message event names
     socket.on('new_message', (data) => {
       console.log('📨 Received new_message:', data)
       handleIncomingMessage(data)
     })
 
-    socket.on('message', (data) => {
-      console.log('📨 Received message:', data)
-      handleIncomingMessage(data)
-    })
-
-    // Typing events
     socket.on('typing', ({ from }: { from: string }) => {
       console.log('⌨️ User started typing:', from)
       setTyping(from, true)

@@ -61,64 +61,29 @@ const useChatStore = create<ChatState & ChatActions>()(
             state.messages[peerId] = []
           }
 
-          const messageId = message._id
-
-          console.log(
-            'Adding message with ID:',
-            messageId,
-            'Message:',
-            message
-          )
-
+          let messageId = message._id || message.id
           if (!messageId) {
             console.warn('Message without ID received:', message)
-            const tempId = `temp-${Date.now()}-${Math.random()}`
-            message._id = tempId
+            messageId = `temp-${Date.now()}-${Math.random()}`
+            message._id = messageId
+          } else {
+            message._id = messageId
           }
 
-          // FIXED: More robust duplicate prevention
-          const messageExists = state.messages[peerId].some((m) => {
-            // Check by ID first
-            if (m._id === messageId) return true
-
-            // Also check by content and timestamp for extra safety
-            if (
-              m.content === message.content &&
-              Math.abs(
-                new Date(m.createdAt).getTime() -
-                  new Date(message.createdAt).getTime()
-              ) < 1000
-            ) {
-              return true
-            }
-
-            return false
-          })
-
+          // Duplicate prevention
+          const messageExists = state.messages[peerId].some(
+            (m) => m._id === messageId
+          )
           if (messageExists) {
             console.log('Duplicate message prevented:', messageId)
             return
           }
 
-          const normalizedMessage = {
-            ...message,
-            _id: messageId,
-          }
-
-          state.messages[peerId].push(normalizedMessage)
+          state.messages[peerId].push(message)
           state.messages[peerId].sort(
             (a, b) =>
               new Date(a.createdAt).getTime() -
               new Date(b.createdAt).getTime()
-          )
-
-          console.log(
-            'Message successfully added to store:',
-            normalizedMessage
-          )
-          console.log(
-            'Total messages for peer:',
-            state.messages[peerId].length
           )
 
           // Update unread count for incoming messages only
@@ -171,11 +136,13 @@ const useChatStore = create<ChatState & ChatActions>()(
 
       setTyping: (peerId, isTyping) => {
         set((state) => {
+          const newTypingUsers = new Set(state.typingUsers)
           if (isTyping) {
-            state.typingUsers.add(peerId)
+            newTypingUsers.add(peerId)
           } else {
-            state.typingUsers.delete(peerId)
+            newTypingUsers.delete(peerId)
           }
+          state.typingUsers = newTypingUsers
         })
       },
 

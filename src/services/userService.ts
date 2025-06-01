@@ -44,16 +44,10 @@ export const userService = {
     return Promise.resolve()
   },
 
-  // User profile
-  getCurrentUser: () => api.get<User>('/auth/me'),
-
   getUserById: (userId: string) => api.get<User>(`/users/${userId}`),
 
   updateProfile: (data: Partial<User>) =>
     api.put<User>('/users/profile', data),
-
-  getUserByFullName: (fullName: string) =>
-    api.get<User[]>(`/users?fullName=${encodeURIComponent(fullName)}`),
 
   searchPlayers: (params: {
     skillLevel?: string

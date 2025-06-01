@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Friend } from '@/types/friend';
+import { Link } from 'react-router-dom';
 
 interface FriendListProps {
     friends: Friend[];
@@ -27,26 +28,28 @@ export const FriendList = ({ friends, loading }: FriendListProps) => {
     return (
         <div className="space-y-4">
             {friends.map((friend) => (
-                <Card key={friend._id} className="p-4">
-                    <div className="flex items-center space-x-4">
-                        <Avatar>
-                            <AvatarImage src={friend.avatar} />
-                            <AvatarFallback>{friend.fullName.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <h3 className="font-medium">{friend.fullName}</h3>
-                            <p className="text-sm text-muted-foreground">{friend.email}</p>
-                            <p className="text-xs text-muted-foreground">
-                                Friends since: {new Date(friend.since).toLocaleDateString()}
-                            </p>
-                            {friend.system && (
+                <Link to={`/users/${friend._id}`}>
+                    <Card key={friend._id} className="p-4">
+                        <div className="flex items-center space-x-4">
+                            <Avatar>
+                                <AvatarImage src={friend.avatar} />
+                                <AvatarFallback>{friend.fullName.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <h3 className="font-medium">{friend.fullName}</h3>
+                                <p className="text-sm text-muted-foreground">{friend.email}</p>
                                 <p className="text-xs text-muted-foreground">
-                                    System: {friend.system}
+                                    Friends since: {new Date(friend.since).toLocaleDateString()}
                                 </p>
-                            )}
+                                {friend.system && (
+                                    <p className="text-xs text-muted-foreground">
+                                        System: {friend.system}
+                                    </p>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </Card>
+                    </Card>
+                </Link>
             ))}
         </div>
     );

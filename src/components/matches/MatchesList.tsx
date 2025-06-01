@@ -5,13 +5,13 @@ import { Match } from "@/types/match";
 
 interface MatchesListProps {
   matches: Match[];
-  currentUserId?: string;
-  loading: boolean;
-  onReschedule: (matchId: string) => void;
-  onCancel: (matchId: string) => void;
-  onConfirm: (matchId: string) => void;
-  onResultRecorded: (matchId: string, updatedMatch?: Match) => void;
-  onScheduleClick: () => void;
+  currentUserId: string;
+  loading?: boolean;
+  onReschedule?: (matchId: string) => void;
+  onCancel?: (matchId: string) => void;
+  onConfirm?: (matchId: string) => void;
+  onResultRecorded?: (matchId: string, updatedMatch?: Match) => void;
+  onScheduleClick?: () => void;
 }
 
 export const MatchesList = ({

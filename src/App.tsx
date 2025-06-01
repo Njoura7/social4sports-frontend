@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import FindPlayers from "./pages/FindPlayers";
 import Matches from "./pages/Matches";
 import Messages from "./pages/Messages";
+import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -46,6 +47,11 @@ const App = () => (
             <Route path="/messages" element={
               <RequireAuth>
                 <Messages />
+              </RequireAuth>
+            } />
+            <Route path="/notifications" element={
+              <RequireAuth>
+                <Notifications />
               </RequireAuth>
             } />
             <Route path="/profile" element={

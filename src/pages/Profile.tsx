@@ -1,4 +1,3 @@
-// src/components/Profile.tsx
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,6 +12,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Edit, MapPin } from 'lucide-react';
 import { userService, User } from '@/services/userService';
+import { toast } from "sonner";
+import { Match } from "@/types/match";
+import { matchService } from '@/services/matchService';
+import { MatchesList } from '@/components/matches/MatchesList';
+
 
 const Profile = () => {
   const { id } = useParams();
@@ -21,6 +25,24 @@ const Profile = () => {
 
   const { stats, loading, fetchUserStats } = useUserStore();
   const [viewedUser, setViewedUser] = useState<User | null>(null);
+  const [pastMatches, setPastMatches] = useState<Match[]>([]);
+  const [loadingMatches, setLoadingMatches] = useState({
+    upcoming: false,
+    past: false
+  });
+
+  const fetchPastMatches = async () => {
+    setLoadingMatches(prev => ({ ...prev, past: true }));
+    try {
+      const matches = await matchService.getPastMatches();
+      setPastMatches(matches);
+    } catch (error) {
+      toast.error("Failed to load past matches");
+      console.error(error);
+    } finally {
+      setLoadingMatches(prev => ({ ...prev, past: false }));
+    }
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -37,7 +59,9 @@ const Profile = () => {
       }
     };
     loadData();
-  }, [id, authUser?._id]);
+    fetchPastMatches();
+
+  }, [id, authUser?._id, fetchUserStats]);
 
   const profileUser = id ? viewedUser : authUser;
   if (!profileUser) {
@@ -147,6 +171,14 @@ const Profile = () => {
 
           <TabsContent value="matches">
             <p>Match history coming soon...</p>
+
+            <MatchesList
+              matches={pastMatches}
+              currentUserId={authUser?._id}
+
+            />
+
+
           </TabsContent>
         </Tabs>
       </div>
