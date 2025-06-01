@@ -30,7 +30,7 @@ npm run dev
 Access at: http://localhost:8080
 ```
 
-✨ Key Features
+### ✨ Key Features
 Player Discovery
 📍 Find nearby players by skill level/availability
 Discovery
@@ -45,10 +45,10 @@ Match Management
 
 🛠️ Technology Stack
 Area	Technologies
-Frontend	React, TypeScript, Vite
-Styling	Tailwind CSS, ShadCN UI
-State	Context API, TanStack Query
-Backend	Node.js API (separate repo)
+- Frontend	React, TypeScript, Vite
+- Styling	Tailwind CSS, ShadCN UI
+- State	Context API, Zustand, axios
+- Backend	Node.js API (separate repo)
 🌟 Future Roadmap
 🎾 Multi-sport expansion
 
