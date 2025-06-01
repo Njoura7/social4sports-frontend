@@ -51,7 +51,6 @@ Access at: http://localhost:8080
 ![App Screenshot](public/real-time-chat.png)
 
 - notification system
-- 
   ![App Screenshot](public/notifications.png)
 
 - Match Management
