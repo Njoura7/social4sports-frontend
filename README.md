@@ -2,7 +2,7 @@
 
 🏓 Modern platform connecting ping pong players to find matches, track progress, and chat in real-time.  
 
-![App Screenshot](public/app-screenshot.png)  
+![App Screenshot](public/main.png)  
 
 ## 🚀 Quick Start  
 
