@@ -52,6 +52,8 @@ Access at: http://localhost:8080
 Match Management
 📅 Schedule games & track history
 📊 View performance analytics
+![App Screenshot](public/matches.png)
+![App Screenshot](public/schedule-match.png)
 
 🛠️ Technology Stack
 Area	Technologies
