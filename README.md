@@ -33,26 +33,33 @@ Access at: http://localhost:8080
 
 ### ✨ Key Features
 - Authentication with jwt
+  
 ![App Screenshot](public/auth.png)
 
 - Profile stats
+  
 ![App Screenshot](public/profile.png)
 
 - Player Discovery
 📍 Find nearby players by skill level/availability
+
 ![App Screenshot](public/find-players.png)
 
 - Real-Time Messaging
 💬 Chat and schedule matches instantly
+
 ![App Screenshot](public/real-time-chat.png)
 
 - notification system
+- 
   ![App Screenshot](public/notifications.png)
 
-Match Management
+- Match Management
 📅 Schedule games & track history
 📊 View performance analytics
+
 ![App Screenshot](public/matches.png)
+
 ![App Screenshot](public/schedule-match.png)
 
 🛠️ Technology Stack
@@ -72,10 +79,8 @@ Area	Technologies
 - 🤖 Smart matchmaking algorithm
 
 ### 👥 Team
-[Your Name] - Role
-
-[Teammate] - Role
+Aziz Najjar - Laouissi Sadok - Ali Husnain - Daemi Mahsa
 
 
 
-Developed with ❤️ by [Team Name] @ [University]
+Developed with ❤️ by Social4Sports Team @ ELTE
