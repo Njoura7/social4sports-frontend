@@ -33,8 +33,9 @@ Access at: http://localhost:8080
 
 ### ✨ Key Features
 - Authentication with jwt
-  
 ![App Screenshot](public/auth.png)
+
+---
 
 - Profile stats
   
