@@ -38,27 +38,33 @@ Access at: http://localhost:8080
 ---
 
 - Profile stats
-  
 ![App Screenshot](public/profile.png)
+
+---
 
 - Player Discovery
 📍 Find nearby players by skill level/availability
-
 ![App Screenshot](public/find-players.png)
+
+---
 
 - Real-Time Messaging
 💬 Chat and schedule matches instantly
-
 ![App Screenshot](public/real-time-chat.png)
+
+---
 
 - notification system
   ![App Screenshot](public/notifications.png)
 
+---
+
 - Match Management
 📅 Schedule games & track history
 📊 View performance analytics
-
 ![App Screenshot](public/matches.png)
+
+---
 
 ![App Screenshot](public/schedule-match.png)
 
