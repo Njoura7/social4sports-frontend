@@ -49,20 +49,21 @@ Area	Technologies
 - Styling	Tailwind CSS, ShadCN UI
 - State	Context API, Zustand, axios
 - Backend	Node.js API (separate repo)
-🌟 Future Roadmap
-🎾 Multi-sport expansion
 
-🏆 Tournament mode
+### 🌟 Future Roadmap
+- 🎾 Multi-sport expansion
 
-📱 Mobile app development
+- 🏆 Tournament mode
 
-🤖 Smart matchmaking algorithm
+- 📱 Mobile app development
 
-👥 Team
+- 🤖 Smart matchmaking algorithm
+
+### 👥 Team
 [Your Name] - Role
 
 [Teammate] - Role
 
-📄 License: [Specify License]
+
 
 Developed with ❤️ by [Team Name] @ [University]
